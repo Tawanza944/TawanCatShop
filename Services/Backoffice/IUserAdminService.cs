@@ -3,7 +3,7 @@ using WebApplication1.ViewModels.Backoffice;
 
 namespace WebApplication1.Services.Backoffice;
 
-/// <summary>Admin-only user management. Every change is written to admin_activity.</summary>
+/// <summary>บริการจัดการบัญชีสำหรับแอดมิน พร้อมบันทึกการเปลี่ยนแปลงใน admin_activity</summary>
 public interface IUserAdminService
 {
     Task<OperationResult<int>> SaveAsync(UserForm form, CancellationToken cancellationToken = default);

@@ -12,7 +12,7 @@ namespace WebApplication1.Services.Dashboards;
 
 public sealed record RaiderJobsModel(IReadOnlyList<Order> Orders, string Mode, decimal FeePerJob);
 
-/// <summary>Delivered jobs of one rider; <see cref="From"/>/<see cref="To"/> are the optional date filter (Thai calendar days).</summary>
+/// <summary>ประวัติงานส่งสำเร็จของไรเดอร์ โดย <see cref="From"/> และ <see cref="To"/> เป็นตัวกรองวันที่ตามเวลาไทย</summary>
 public sealed record RaiderHistoryModel(Paged<Order> Orders, decimal FeePerJob, decimal TotalEarned, DateOnly? From, DateOnly? To, DateOnly Today);
 
 public sealed class RaiderDashboard : DashboardBase

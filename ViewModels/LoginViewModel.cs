@@ -23,7 +23,7 @@ namespace WebApplication1.ViewModels
         public string Password { get; set; } = string.Empty;
 
         /// <summary>
-        /// Local page to return to after signing in (set when a protected page redirected here).
+        /// หน้าภายในเว็บที่จะกลับไปหลังล็อกอิน เมื่อผู้ใช้ถูกส่งมาจากหน้าที่ต้องมีสิทธิ์
         /// </summary>
         public string? ReturnUrl { get; set; }
     }

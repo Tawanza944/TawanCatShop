@@ -12,7 +12,7 @@ public sealed record FooterViewModel(
     IReadOnlyList<PaymentMethod> PaymentMethods,
     decimal FreeShippingThreshold);
 
-/// <summary>Site footer. Store details come from appsettings ("StoreInfo") through the Options pattern.</summary>
+/// <summary>เตรียมข้อมูลท้ายเว็บจาก StoreInfo ใน appsettings ผ่าน Options</summary>
 public sealed class FooterViewComponent : ViewComponent
 {
     private readonly StoreInfoOptions _store;

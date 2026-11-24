@@ -15,7 +15,7 @@ public sealed record CheckoutFormViewModel(
     IReadOnlyList<UserAddress> Addresses,
     IReadOnlyList<PaymentMethod> PaymentMethods);
 
-/// <summary>Checkout form inside the shop drawers, pre-filled with the shopper's saved addresses.</summary>
+/// <summary>เตรียมฟอร์มชำระเงินและที่อยู่ที่ลูกค้าเคยบันทึก</summary>
 public sealed class CheckoutFormViewComponent : ViewComponent
 {
     private readonly ICurrentUserService _currentUser;

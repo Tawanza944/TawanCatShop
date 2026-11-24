@@ -65,7 +65,7 @@ namespace WebApplication1.Models
 
         public ShopPayout? ShopPayout { get; set; }
 
-        /// <summary>Carrier and tracking number, once the shop has shipped a parcel order (null for rider orders).</summary>
+        /// <summary>ชื่อขนส่งและเลขติดตามหลังร้านส่งพัสดุ ออเดอร์ที่ใช้ไรเดอร์ไม่มีค่านี้</summary>
         public OrderShipment? Shipment { get; set; }
 
         [StringLength(255)]
@@ -88,7 +88,7 @@ namespace WebApplication1.Models
         /// </summary>
         public List<OrderItem> Items { get; set; } = new();
 
-        // Helper properties สำหรับแสดงผลในหน้า View
+        // พร็อพเพอร์ตีช่วยจัดข้อมูลสำหรับแสดงใน View
         [NotMapped]
         public string StatusThai => Status.ToThai();
 
@@ -131,7 +131,7 @@ namespace WebApplication1.Models
 
         public decimal TotalPrice { get; set; }
 
-        // Navigation property
+        // พร็อพเพอร์ตีสำหรับเข้าถึงข้อมูลที่มีความสัมพันธ์กัน
         public Order? Order { get; set; }
     }
 }

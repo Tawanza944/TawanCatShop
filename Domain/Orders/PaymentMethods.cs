@@ -7,7 +7,7 @@ public enum PaymentMethod
 }
 
 /// <summary>
-/// Maps the payment methods the shop really accepts to the code the browser sends and the label stored in <c>orders.payment_method</c>.
+/// เชื่อมวิธีชำระเงินที่รองรับกับรหัสจากเบราว์เซอร์และข้อความที่จัดเก็บใน <c>orders.payment_method</c>
 /// </summary>
 public static class PaymentMethods
 {

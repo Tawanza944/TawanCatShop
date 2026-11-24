@@ -3,7 +3,7 @@ using WebApplication1.ViewModels.Account;
 
 namespace WebApplication1.Services.Accounts;
 
-/// <summary>The signed-in user's own account: details, avatar and password.</summary>
+/// <summary>จัดการข้อมูลส่วนตัว รูปโปรไฟล์ และรหัสผ่านของบัญชีที่ล็อกอิน</summary>
 public interface IProfileService
 {
     Task<OperationResult<bool>> UpdateDetailsAsync(int userId, ProfileForm form, CancellationToken cancellationToken = default);

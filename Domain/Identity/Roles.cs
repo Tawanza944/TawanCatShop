@@ -1,7 +1,7 @@
 namespace WebApplication1.Domain.Identity;
 
 /// <summary>
-/// Role names exactly as stored in the <c>roles</c> table. Use these constants instead of string literals.
+/// ชื่อบทบาทตามที่บันทึกในตาราง <c>roles</c> ใช้ค่าคงที่นี้เมื่อตรวจหรือกำหนดบทบาท
 /// </summary>
 public static class Roles
 {

@@ -11,7 +11,7 @@ public enum ProductBadge
     Sale
 }
 
-/// <summary>A product as shown on a storefront card.</summary>
+/// <summary>ข้อมูลสินค้าสำหรับการ์ดบนหน้าร้าน</summary>
 public sealed record ProductCard(
     int Id,
     string Name,
@@ -50,7 +50,7 @@ public enum ProductSort
     Newest
 }
 
-/// <summary>Filters from the product list query string.</summary>
+/// <summary>ตัวกรองที่รับจาก query string ของหน้ารวมสินค้า</summary>
 public sealed record ProductQuery(string? CategoryKey, string? Search, ProductSort Sort, decimal? MinPrice, decimal? MaxPrice, int? ShopId = null);
 
 public sealed record StorefrontShop(int Id, string Name, string? ImageUrl, int Followers, double? Rating);
@@ -95,7 +95,7 @@ public sealed class ProductListViewModel
 
 public sealed record ReviewItem(int Id, string ReviewerName, int Rating, string? Comment, DateTime CreatedAt, bool IsMine, string? ShopReply = null);
 
-/// <summary>Whether the signed-in user can review this product, and their existing review if any.</summary>
+/// <summary>สิทธิ์ของผู้ใช้ที่ล็อกอินในการรีวิวสินค้า และรีวิวเดิมถ้ามี</summary>
 public sealed record ReviewEligibility(bool CanReview, string? Reason, ReviewItem? ExistingReview);
 
 public sealed class ProductDetailViewModel
@@ -124,5 +124,5 @@ public sealed class PromotionPageViewModel
     public required IReadOnlyList<ProductCard> Deals { get; init; }
 }
 
-/// <summary>One coupon drawn as a ticket (promotion page and "my coupons"). <see cref="Used"/> shows the "ใช้แล้ว" stamp.</summary>
+/// <summary>ข้อมูลคูปองสำหรับการ์ด โดย <see cref="Used"/> ใช้แสดงตรา “ใช้แล้ว”</summary>
 public sealed record CouponTicket(Coupon Coupon, bool Used, bool UseToShop = false, bool Saved = false);

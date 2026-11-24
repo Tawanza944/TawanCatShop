@@ -5,8 +5,8 @@ using WebApplication1.ViewModels.Shared;
 namespace WebApplication1.Controllers;
 
 /// <summary>
-/// Friendly pages for 404, 500 and other status codes. Reached through
-/// UseStatusCodePagesWithReExecute and UseExceptionHandler in Program.cs.
+/// แสดงหน้าอธิบายสำหรับ 404, 500 และสถานะผิดพลาดอื่น
+/// ถูกเรียกผ่าน UseStatusCodePagesWithReExecute และ UseExceptionHandler ที่ตั้งใน Program.cs
 /// </summary>
 [ApiExplorerSettings(IgnoreApi = true)]
 public sealed class ErrorController : Controller

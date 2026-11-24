@@ -13,7 +13,7 @@ public enum LedgerLineKind
     RewardsCost
 }
 
-/// <summary>One line of the ledger. Order lines are computed from orders; manual lines come from ledger_entries.</summary>
+/// <summary>หนึ่งบรรทัดในสมุดบัญชี มาจากการคำนวณออเดอร์หรือรายการใน ledger_entries</summary>
 public sealed record LedgerLine(
     DateTime At,
     string Reference,

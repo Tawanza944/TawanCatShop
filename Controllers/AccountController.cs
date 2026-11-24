@@ -12,8 +12,8 @@ using WebApplication1.ViewModels.Dashboard;
 namespace WebApplication1.Controllers
 {
     /// <summary>
-    /// The signed-in user's area: the role dashboard (one strategy per role) and "my account".
-    /// Role-specific actions live in AdminController, ShopController, AccountingController and OrdersController.
+    /// แสดงหน้าโปรไฟล์และเลือก Dashboard ให้ตรงกับบทบาทของผู้ใช้ที่ล็อกอิน
+    /// คำสั่งเฉพาะบทบาทอยู่ใน AdminController, ShopController, AccountingController และ OrdersController
     /// </summary>
     [RequireLogin]
     public class AccountController : Controller

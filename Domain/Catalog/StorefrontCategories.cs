@@ -1,10 +1,10 @@
 namespace WebApplication1.Domain.Catalog;
 
-/// <summary>A storefront category: URL key, the exact <c>products.category</c> value, and the label shown to shoppers.</summary>
+/// <summary>หมวดสินค้าที่ระบุคีย์ใน URL ค่า <c>products.category</c> และชื่อที่แสดงแก่ลูกค้า</summary>
 public sealed record StorefrontCategory(string Key, string Name, string Label, string Icon, bool ForDogs = false);
 
 /// <summary>
-/// The six categories the shop sells. <c>products.category</c> must hold one of the <see cref="StorefrontCategory.Name"/> values.
+/// กำหนดหมวดสินค้าทั้งหกของร้าน โดย <c>products.category</c> ใช้ค่าจาก <see cref="StorefrontCategory.Name"/>
 /// </summary>
 public static class StorefrontCategories
 {

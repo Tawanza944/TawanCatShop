@@ -1,8 +1,8 @@
 namespace WebApplication1.Domain.Common;
 
 /// <summary>
-/// Outcome of a business operation: either success with a value, or a message the user can read.
-/// Services return this instead of throwing for expected failures (out of stock, invalid coupon...).
+/// เก็บผลสำเร็จพร้อมข้อมูล หรือผลล้มเหลวพร้อมข้อความที่ผู้ใช้อ่านได้
+/// บริการคืนผลชนิดนี้สำหรับกรณีที่คาดไว้ เช่น สินค้าหมดหรือคูปองใช้ไม่ได้
 /// </summary>
 public sealed class OperationResult<T>
 {

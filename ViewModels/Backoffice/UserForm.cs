@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.ViewModels.Backoffice;
 
-/// <summary>Admin's add/edit user form. Id = 0 creates a user; Password is only used when creating.</summary>
+/// <summary>ฟอร์มแอดมินสำหรับเพิ่มหรือแก้ผู้ใช้ ใช้ Id เท่ากับ 0 และรหัสผ่านเมื่อสร้างบัญชี</summary>
 public sealed class UserForm
 {
     public int Id { get; set; }

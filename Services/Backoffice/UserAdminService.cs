@@ -26,7 +26,7 @@ public sealed class UserAdminService : IUserAdminService
 
     public async Task<OperationResult<int>> SaveAsync(UserForm form, CancellationToken cancellationToken = default)
     {
-        // Owner membership can only be established outside the Admin user-management flow.
+        // การตั้งบทบาท Owner ต้องดำเนินการนอกหน้าจัดการผู้ใช้ของ Admin
         var targetIsOwner = form.Id > 0 && await _db.Staff.AnyAsync(staff => staff.UserId == form.Id &&
             _db.Roles.Any(role => role.Id == staff.RoleId && role.Name == Roles.Owner), cancellationToken);
         if (targetIsOwner || Roles.AreEqual(form.Role, Roles.Owner))

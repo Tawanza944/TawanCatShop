@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebApplication1.Data.Converters;
 
 /// <summary>
-/// Maps <see cref="DateOnly"/> to a MySQL DATE column. The MySql.EntityFrameworkCore provider reads DATE as
-/// <see cref="DateTime"/>, so without this conversion reading the column throws InvalidCastException.
+/// แมป <see cref="DateOnly"/> กับคอลัมน์ DATE ใน MySQL โดยตัวให้บริการ MySql.EntityFrameworkCore อ่าน DATE เป็น
+/// <see cref="DateTime"/> จึงต้องแปลงชนิดก่อนใช้เพื่อเลี่ยง InvalidCastException
 /// </summary>
 public sealed class DateOnlyConverter : ValueConverter<DateOnly, DateTime>
 {

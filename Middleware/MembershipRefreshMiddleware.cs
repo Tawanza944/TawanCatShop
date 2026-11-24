@@ -6,8 +6,8 @@ using WebApplication1.Services.Identity;
 namespace WebApplication1.Middleware;
 
 /// <summary>
-/// Re-reads the signed-in user's role and status on every request so that an admin's change
-/// (new role, suspension, deleted account) takes effect immediately instead of at the next sign-in.
+/// อ่านบทบาทและสถานะบัญชีอีกครั้งในทุกคำขอของผู้ที่ล็อกอิน
+/// การเปลี่ยนบทบาท ระงับ หรือลบบัญชีจึงมีผลโดยไม่ต้องรอให้ผู้ใช้ล็อกอินใหม่
 /// </summary>
 public sealed class MembershipRefreshMiddleware
 {

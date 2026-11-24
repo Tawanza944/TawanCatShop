@@ -7,9 +7,9 @@ using WebApplication1.Services.Orders;
 namespace WebApplication1.Controllers;
 
 /// <summary>
-/// The shop's "ยืนยันส่งพัสดุ" form on the packing page posts here (Post/Redirect/Get).
-/// The controller only turns form fields into <see cref="ShipmentDetails"/> and reports the result;
-/// the rules live in the domain value and in <see cref="IShipmentService"/>.
+/// รับฟอร์ม “ยืนยันส่งพัสดุ” จากหน้าแพ็กสินค้า แล้วกลับไปหน้าหลังร้านด้วย Post/Redirect/Get
+/// Controller แปลงค่าจากฟอร์มเป็น <see cref="ShipmentDetails"/> และแจ้งผลแก่ร้าน
+/// ส่วนกฎการบันทึกอยู่ในโมเดลโดเมนและ <see cref="IShipmentService"/>
 /// </summary>
 [RequireRole(Roles.Shop)]
 public sealed class ShipmentsController : Controller

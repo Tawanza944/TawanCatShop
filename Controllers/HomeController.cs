@@ -13,7 +13,7 @@ using WebApplication1.ViewModels.Store;
 namespace WebApplication1.Controllers
 {
     /// <summary>
-    /// Public storefront pages (home, products, product detail, promotions, help) and sign-in/sign-up.
+    /// รวมหน้าร้านสาธารณะ เช่น หน้าแรก สินค้า โปรโมชั่นและช่วยเหลือ รวมถึงเข้าสู่ระบบและสมัครสมาชิก
     /// </summary>
     public class HomeController : Controller
     {

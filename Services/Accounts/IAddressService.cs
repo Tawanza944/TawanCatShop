@@ -3,12 +3,12 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Services.Accounts;
 
-/// <summary>Saved delivery addresses of the signed-in user.</summary>
+/// <summary>จัดการที่อยู่จัดส่งที่บันทึกไว้ของผู้ใช้ที่ล็อกอิน</summary>
 public interface IAddressService
 {
     Task<IReadOnlyList<UserAddress>> GetForUserAsync(int userId, CancellationToken cancellationToken = default);
 
-    /// <summary>Creates (id = 0) or updates an address that belongs to the user.</summary>
+    /// <summary>เพิ่มที่อยู่เมื่อ id เท่ากับ 0 หรือแก้รายการที่ผู้ใช้เป็นเจ้าของ</summary>
     Task<OperationResult<int>> SaveAsync(int userId, UserAddress address, CancellationToken cancellationToken = default);
 
     Task<OperationResult<bool>> DeleteAsync(int userId, int addressId, CancellationToken cancellationToken = default);

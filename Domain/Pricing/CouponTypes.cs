@@ -1,6 +1,6 @@
 namespace WebApplication1.Domain.Pricing;
 
-/// <summary>Values of <c>coupons.discount_type</c>.</summary>
+/// <summary>ค่าประเภทส่วนลดที่บันทึกใน <c>coupons.discount_type</c></summary>
 public static class CouponTypes
 {
     public const string Fixed = "Fixed";

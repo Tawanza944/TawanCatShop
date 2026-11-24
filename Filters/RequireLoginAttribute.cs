@@ -5,7 +5,7 @@ using WebApplication1.Services.Identity;
 namespace WebApplication1.Filters;
 
 /// <summary>
-/// Allows the action only for a signed-in user. Honors <see cref="AllowAnonymousAttribute"/> on the action.
+/// ให้เฉพาะผู้ที่ล็อกอินเรียก Action ยกเว้น Action ที่ระบุ <see cref="AllowAnonymousAttribute"/>
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 public class RequireLoginAttribute : Attribute, IAuthorizationFilter

@@ -6,7 +6,7 @@ using WebApplication1.ViewModels.Backoffice;
 
 namespace WebApplication1.Controllers;
 
-/// <summary>Product management for the Shop role. Forms on the dashboard post here and come back (Post/Redirect/Get).</summary>
+/// <summary>จัดการสินค้าสำหรับบทบาท Shop โดยรับฟอร์มจากหลังร้านและพากลับด้วย Post/Redirect/Get</summary>
 [RequireRole(Roles.Shop)]
 public sealed class ShopController : Controller
 {

@@ -9,8 +9,8 @@ using WebApplication1.ViewModels.Backoffice;
 namespace WebApplication1.Controllers
 {
     /// <summary>
-    /// Admin actions. The dashboard posts here (Post/Redirect/Get); Adduser and userlist are the original stand-alone
-    /// pages, kept and now backed by the same <see cref="IUserAdminService"/> so the rules live in one place.
+    /// รับคำสั่งจากหลังบ้านแอดมินด้วย Post/Redirect/Get และมีหน้า Adduser กับ userlist แยกสำหรับจัดการผู้ใช้
+    /// ทั้งสองหน้าเรียก <see cref="IUserAdminService"/> เพื่อใช้กฎจัดการบัญชีชุดเดียวกัน
     /// </summary>
     [RequireRole(Roles.Admin)]
     public class AdminController : Controller
@@ -26,7 +26,7 @@ namespace WebApplication1.Controllers
             _coupons = coupons;
         }
 
-        // ---------- Dashboard actions ----------
+        // ---------- คำสั่งจากหน้า Dashboard ----------
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveFlashSale([FromServices] FlashSaleAdmin flash, [FromForm] FlashSaleDraft draft, CancellationToken token)
@@ -108,7 +108,7 @@ namespace WebApplication1.Controllers
             return Back("coupons", result.Error, "ลบโค้ดแล้ว");
         }
 
-        // ---------- Original stand-alone pages ----------
+        // ---------- หน้าแยกสำหรับจัดการผู้ใช้ ----------
 
         [HttpGet]
         public async Task<IActionResult> Adduser(CancellationToken cancellationToken)
@@ -179,7 +179,7 @@ namespace WebApplication1.Controllers
             ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
                 .FirstOrDefault(m => !string.IsNullOrEmpty(m)) ?? "ข้อมูลไม่ถูกต้อง";
 
-        /// <summary>Flash the error (or the success text when there is no error) and go back to the dashboard section.</summary>
+        /// <summary>ตั้งข้อความสำเร็จหรือข้อผิดพลาด แล้วกลับไปส่วนหลังบ้านที่เกี่ยวข้อง</summary>
         private IActionResult Back(string section, string? error, string? success = null)
         {
             TempData[error is null ? "SuccessMessage" : "ErrorMessage"] = error ?? success;

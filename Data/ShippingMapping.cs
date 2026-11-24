@@ -5,7 +5,7 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Data;
 
-/// <summary>EF Core mapping for parcel shipments (table created by database/12_order_shipments.sql).</summary>
+/// <summary>การแมปตารางจัดส่งพัสดุใน EF Core ซึ่งสร้างด้วย database/12_order_shipments.sql</summary>
 internal static class ShippingMapping
 {
     public static void Configure(ModelBuilder model)

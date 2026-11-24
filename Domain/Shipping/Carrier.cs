@@ -1,6 +1,6 @@
 namespace WebApplication1.Domain.Shipping;
 
-/// <summary>Parcel carriers a shop can choose when it ships an order outside the rider area.</summary>
+/// <summary>ผู้ให้บริการขนส่งที่ร้านเลือกได้สำหรับออเดอร์นอกพื้นที่ไรเดอร์</summary>
 public enum Carrier
 {
     ThailandPostEms,
@@ -14,8 +14,8 @@ public enum Carrier
 }
 
 /// <summary>
-/// Maps each <see cref="Carrier"/> to a stable code (stored in the database and posted by forms) and the name shown to people.
-/// Codes never change once stored; display names can.
+/// กำหนดรหัสคงที่ของ <see cref="Carrier"/> สำหรับฐานข้อมูลและฟอร์ม พร้อมชื่อที่ใช้แสดง
+/// คงรหัสที่บันทึกไว้เพื่อรองรับข้อมูลเก่า ส่วนชื่อแสดงผลปรับได้
 /// </summary>
 public static class Carriers
 {
@@ -32,14 +32,14 @@ public static class Carriers
             [Carrier.Other] = ("other", "อื่น ๆ")
         };
 
-    /// <summary>Carriers in the order they appear in the shop's dropdown ("อื่น ๆ" last).</summary>
+    /// <summary>เรียงตัวเลือกขนส่งตามลำดับในฟอร์มร้าน โดยให้ “อื่น ๆ” อยู่ท้ายรายการ</summary>
     public static IReadOnlyList<Carrier> All { get; } = Map.Keys.ToArray();
 
     public static string ToCode(this Carrier carrier) => Map[carrier].Code;
 
     public static string ToThai(this Carrier carrier) => Map[carrier].Name;
 
-    /// <summary>Parses a posted or stored code. Case and surrounding spaces are ignored; unknown codes fail.</summary>
+    /// <summary>อ่านรหัสจากฟอร์มหรือฐานข้อมูลโดยตัดช่องว่างและเทียบแบบไม่สนตัวพิมพ์ หากไม่รู้จักรหัสจะคืนผลไม่สำเร็จ</summary>
     public static bool TryParseCode(string? code, out Carrier carrier)
     {
         var normalized = code?.Trim();

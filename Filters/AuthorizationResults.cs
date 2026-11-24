@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 namespace WebApplication1.Filters;
 
 /// <summary>
-/// Builds the response for a rejected request: JSON for fetch calls, a redirect or a page for browser navigation.
+/// สร้างผลตอบกลับเมื่อคำขอถูกปฏิเสธ โดยเลือก JSON หรือหน้าเว็บตามประเภทคำขอ
 /// </summary>
 internal static class AuthorizationResults
 {
@@ -18,7 +18,7 @@ internal static class AuthorizationResults
             return new JsonResult(new { success = false, message = "กรุณาเข้าสู่ระบบก่อน" }) { StatusCode = StatusCodes.Status401Unauthorized };
         }
 
-        // Only GET pages are safe to return to; a POST would be replayed without its form data.
+        // เก็บเฉพาะหน้า GET เป็นหน้าที่กลับไปได้หลังล็อกอิน เพราะ POST ต้องใช้ข้อมูลฟอร์มเดิม
         var returnUrl = HttpMethods.IsGet(request.Method) ? $"{request.PathBase}{request.Path}{request.QueryString}" : null;
         return new RedirectToActionResult("Login", "Home", new { returnUrl });
     }

@@ -1,6 +1,6 @@
 namespace WebApplication1.Models;
 
-/// <summary>A customer's review of a product they received (table product_reviews). One per user per product.</summary>
+/// <summary>รีวิวสินค้าที่ลูกค้าได้รับแล้ว บันทึกใน product_reviews หนึ่งรายการต่อผู้ใช้ต่อสินค้า</summary>
 public class ProductReview
 {
     public int Id { get; set; }

@@ -1,9 +1,9 @@
 namespace WebApplication1.Domain.Pricing;
 
-/// <summary>What the browser asks for: a product and how many. Prices never come from the client.</summary>
+/// <summary>สินค้ากับจำนวนที่เบราว์เซอร์ขอซื้อ เซิร์ฟเวอร์เป็นผู้กำหนดราคา</summary>
 public sealed record CartLineRequest(int ProductId, int Quantity);
 
-/// <summary>A cart line priced from the database.</summary>
+/// <summary>รายการในตะกร้าที่แทนราคาด้วยค่าจากฐานข้อมูลแล้ว</summary>
 public sealed record PricedLine(int ProductId, string Name, string Category, string? ImageUrl, decimal UnitPrice, int Quantity, int ShopId = 0, string? ShopName = null,
     decimal? SellerPrice = null, int? FlashSaleId = null)
 {
@@ -11,7 +11,7 @@ public sealed record PricedLine(int ProductId, string Name, string Category, str
     public decimal SellerTotal => (SellerPrice ?? UnitPrice) * Quantity;
 }
 
-/// <summary>The server's price for a cart: what the customer will actually pay.</summary>
+/// <summary>ผลคำนวณราคาตะกร้าฝั่งเซิร์ฟเวอร์ที่ใช้หายอดที่ลูกค้าต้องจ่าย</summary>
 public sealed record PricingQuote(
     IReadOnlyList<PricedLine> Lines,
     decimal Subtotal,
@@ -31,7 +31,7 @@ public sealed record PricingQuote(
     public bool CanCheckout => Lines.Count > 0 && Problems.Count == 0;
 }
 
-/// <summary>Result of applying one coupon to a priced cart.</summary>
+/// <summary>ผลจากการนำคูปองหนึ่งใบไปคำนวณกับตะกร้าที่คิดราคาแล้ว</summary>
 public sealed record CouponOutcome(decimal Discount, bool FreeShipping, string? Error)
 {
     public bool IsValid => Error is null;

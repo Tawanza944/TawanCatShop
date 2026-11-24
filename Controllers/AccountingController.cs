@@ -17,7 +17,7 @@ public sealed class AccountingController : Controller
         _accounting = accounting;
     }
 
-    /// <param name="orderId">One order, or null to deduct every waiting order.</param>
+    /// <param name="orderId">รหัสออเดอร์ที่จะหักค่าคอม หากเป็น null จะทำกับออเดอร์ทั้งหมดที่รอหัก</param>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeductCommission(int? orderId, CancellationToken cancellationToken)

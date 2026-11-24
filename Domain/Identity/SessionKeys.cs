@@ -1,7 +1,7 @@
 namespace WebApplication1.Domain.Identity;
 
 /// <summary>
-/// Session key names shared by the code that writes the signed-in user and the code that reads it.
+/// ชื่อคีย์ในเซสชันที่ใช้ร่วมกันระหว่างตัวบันทึกและตัวอ่านข้อมูลผู้ใช้ที่ล็อกอิน
 /// </summary>
 public static class SessionKeys
 {

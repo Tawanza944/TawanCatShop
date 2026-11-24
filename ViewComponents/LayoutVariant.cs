@@ -1,8 +1,8 @@
 namespace WebApplication1.ViewComponents;
 
 /// <summary>
-/// Full = storefront pages; Compact = sign-in pages and the back office. Pages pick one with
-/// <c>ViewData["LayoutVariant"] = LayoutVariant.Compact</c>; the default is Full.
+/// Full ใช้กับหน้าร้าน ส่วน Compact ใช้กับหน้าเข้าสู่ระบบและหลังบ้าน
+/// เลือกด้วย <c>ViewData["LayoutVariant"] = LayoutVariant.Compact</c> ค่าเริ่มต้นคือ Full
 /// </summary>
 public enum LayoutVariant
 {

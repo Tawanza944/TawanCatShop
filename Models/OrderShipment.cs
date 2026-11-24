@@ -3,8 +3,8 @@ using WebApplication1.Domain.Shipping;
 namespace WebApplication1.Models;
 
 /// <summary>
-/// Row of <c>order_shipments</c>: the parcel a shop handed to a carrier for an order outside the rider area.
-/// Written once by <see cref="Services.Orders.ShipmentService"/>; never edited.
+/// ข้อมูลพัสดุใน <c>order_shipments</c> สำหรับออเดอร์นอกพื้นที่ไรเดอร์ที่ร้านส่งผ่านผู้ให้บริการขนส่ง
+/// บันทึกครั้งเดียวผ่าน <see cref="Services.Orders.ShipmentService"/> ข้อมูลการส่งเดิมจะถูกเก็บไว้
 /// </summary>
 public sealed class OrderShipment
 {
@@ -12,16 +12,16 @@ public sealed class OrderShipment
 
     public Carrier Carrier { get; set; }
 
-    /// <summary>Carrier name typed by the shop when <see cref="Carrier"/> is <see cref="Carrier.Other"/>.</summary>
+    /// <summary>ชื่อขนส่งที่ร้านกรอกเมื่อเลือก <see cref="Carrier"/> เป็น <see cref="Carrier.Other"/></summary>
     public string? OtherCarrierName { get; set; }
 
     public string TrackingNumber { get; set; } = string.Empty;
 
     public int ShippedBy { get; set; }
 
-    /// <summary>UTC.</summary>
+    /// <summary>เวลาที่บันทึกการส่งในเขตเวลา UTC</summary>
     public DateTime ShippedAt { get; set; }
 
-    /// <summary>The stored values as the validated domain value (carrier display name, normalized number).</summary>
+    /// <summary>แปลงข้อมูลที่จัดเก็บเป็นรายละเอียดขนส่งและเลขติดตามในรูปแบบที่ผ่านการตรวจแล้ว</summary>
     public ShipmentDetails Details => ShipmentDetails.FromStored(Carrier, OtherCarrierName, TrackingNumber);
 }

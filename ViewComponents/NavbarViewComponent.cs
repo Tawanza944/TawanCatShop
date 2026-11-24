@@ -12,7 +12,7 @@ public sealed record NavbarViewModel(
     RoleProfile? Role,
     bool ShowShoppingTools);
 
-/// <summary>Top navigation. Knows who is signed in through <see cref="ICurrentUserService"/> so the layout stays free of session code.</summary>
+/// <summary>เตรียมเมนูด้านบนและอ่านสถานะล็อกอินผ่าน <see cref="ICurrentUserService"/></summary>
 public sealed class NavbarViewComponent : ViewComponent
 {
     private readonly ICurrentUserService _currentUser;

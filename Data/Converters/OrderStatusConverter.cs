@@ -4,8 +4,8 @@ using WebApplication1.Domain.Orders;
 namespace WebApplication1.Data.Converters;
 
 /// <summary>
-/// Stores <see cref="OrderStatus"/> as its existing lowercase code ("pending", "delivered", ...)
-/// so rows written before the enum existed keep working.
+/// บันทึก <see cref="OrderStatus"/> ด้วยรหัสตัวพิมพ์เล็กเดิม เช่น "pending" และ "delivered"
+/// จึงยังอ่านข้อมูลที่สร้างก่อนประกาศ enum นี้ได้
 /// </summary>
 public sealed class OrderStatusConverter : ValueConverter<OrderStatus, string>
 {

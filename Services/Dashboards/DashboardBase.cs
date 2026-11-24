@@ -11,7 +11,7 @@ using WebApplication1.ViewModels.Dashboard;
 
 namespace WebApplication1.Services.Dashboards;
 
-/// <summary>Shared helpers for role dashboards: Thai calendar days, paging, revenue series.</summary>
+/// <summary>ฟังก์ชันใช้ร่วมกันของ Dashboard เช่น วันตามเวลาไทย การแบ่งหน้า และข้อมูลกราฟรายได้</summary>
 public abstract class DashboardBase : IRoleDashboard
 {
     protected const int PageSize = 10;
@@ -44,7 +44,7 @@ public abstract class DashboardBase : IRoleDashboard
 
     protected DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), TimeZone).DateTime);
 
-    /// <summary>UTC instant at which the given Thai calendar day starts.</summary>
+    /// <summary>เวลา UTC ที่ตรงกับต้นวันตามปฏิทินไทยที่ระบุ</summary>
     protected DateTime StartOfDayUtc(DateOnly day) =>
         TimeZoneInfo.ConvertTimeToUtc(day.ToDateTime(TimeOnly.MinValue), TimeZone);
 
@@ -86,7 +86,7 @@ public abstract class DashboardBase : IRoleDashboard
         return new Paged<T>(items, current, pageCount, total);
     }
 
-    /// <summary>Revenue of non-cancelled orders per Thai day for the last <paramref name="days"/> days, oldest first.</summary>
+    /// <summary>รายได้จากออเดอร์ที่ไม่ได้ยกเลิกในช่วง <paramref name="days"/> วันตามเวลาไทย เรียงจากเก่าไปใหม่</summary>
     protected async Task<ChartData> RevenueSeriesAsync(int days, string label, CancellationToken cancellationToken, bool deliveredOnly = false, IQueryable<Order>? scopedOrders = null)
     {
         var firstDay = Today.AddDays(-(days - 1));
@@ -104,9 +104,9 @@ public abstract class DashboardBase : IRoleDashboard
             label, "baht");
     }
 
-    // ---------- Settlement: what the shop really receives after Accounting deducts commission ----------
+    // ---------- ยอดที่ร้านได้รับหลังฝ่ายบัญชีหักค่าคอม ----------
 
-    /// <summary>Delivered orders whose delivery falls in the given Thai calendar days (either end may be open).</summary>
+    /// <summary>ออเดอร์ที่ส่งถึงในช่วงวันตามเวลาไทย โดยระบุวันเริ่มหรือวันสิ้นสุดอย่างใดอย่างหนึ่งได้</summary>
     protected IQueryable<Order> DeliveredBetween(DateOnly? from, DateOnly? to)
     {
         var query = Db.Orders.AsNoTracking().Where(o => o.Status == OrderStatus.Delivered);

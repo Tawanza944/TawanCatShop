@@ -11,7 +11,7 @@ using WebApplication1.Services.Storage;
 namespace WebApplication1.Extensions;
 
 /// <summary>
-/// Registers LoveCat application services so Program.cs stays a short composition root.
+/// ลงทะเบียนบริการของ LoveCat ไว้ที่นี่ เพื่อให้ Program.cs แสดงลำดับเริ่มต้นแอปได้ชัดเจน
 /// </summary>
 public static class ServiceCollectionExtensions
 {
@@ -50,7 +50,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICouponAdminService, CouponAdminService>();
         services.AddScoped<IAccountingService, AccountingService>();
 
-        // Strategy pattern: one dashboard per role; AccountController picks the one matching the user's role.
+        // ใช้ Strategy แยก Dashboard ตาม Role แล้วให้ AccountController เลือกชุดที่ตรงกับผู้ใช้
         services.AddScoped<IRoleDashboard, AdminDashboard>();
         services.AddScoped<IRoleDashboard, ShopDashboard>();
         services.AddScoped<IRoleDashboard, RaiderDashboard>();

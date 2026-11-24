@@ -4,9 +4,9 @@ using WebApplication1.Domain.Common;
 namespace WebApplication1.Domain.Shipping;
 
 /// <summary>
-/// The carrier and tracking number a shop enters when it hands a parcel to a carrier.
-/// Value object: it can only be created through <see cref="Create"/>, so an instance is always valid
-/// (the rest of the system never has to re-check the tracking number or the carrier name).
+/// ชื่อผู้ให้บริการขนส่งและเลขติดตามที่ร้านกรอกเมื่อส่งมอบพัสดุ
+/// เป็น Value Object ที่สร้างผ่าน <see cref="Create"/> เพื่อให้ทุกอินสแตนซ์มีค่าที่ผ่านการตรวจ
+/// ส่วนอื่นจึงใช้ชื่อขนส่งและเลขติดตามจากออบเจ็กต์นี้ได้โดยตรง
 /// </summary>
 public sealed partial record ShipmentDetails
 {
@@ -24,18 +24,18 @@ public sealed partial record ShipmentDetails
 
     public Carrier Carrier { get; }
 
-    /// <summary>Name typed by the shop; only set when <see cref="Carrier"/> is <see cref="Shipping.Carrier.Other"/>.</summary>
+    /// <summary>ชื่อขนส่งที่ร้านกรอกเมื่อ <see cref="Carrier"/> เป็น <see cref="Shipping.Carrier.Other"/></summary>
     public string? OtherCarrierName { get; }
 
-    /// <summary>Normalized tracking number: upper case, no spaces or dashes.</summary>
+    /// <summary>เลขติดตามที่ปรับเป็นตัวพิมพ์ใหญ่และตัดช่องว่างกับขีดออกแล้ว</summary>
     public string TrackingNumber { get; }
 
-    /// <summary>Carrier name to show customers and staff.</summary>
+    /// <summary>ชื่อขนส่งที่แสดงให้ลูกค้าและพนักงานเห็น</summary>
     public string CarrierDisplayName => Carrier == Carrier.Other && OtherCarrierName is { } name ? name : Carrier.ToThai();
 
     /// <summary>
-    /// Validates raw form input. Spaces and dashes inside the tracking number are removed because people paste numbers
-    /// like "EB 1234-5678 9 TH"; what is left must be 8–30 English letters or digits.
+    /// ตรวจค่าจากฟอร์มและตัดช่องว่างกับขีดออกจากเลขติดตามเพื่อรองรับข้อความที่คัดลอกมา
+    /// ตัวอย่าง "EB 1234-5678 9 TH" หลังปรับรูปแบบต้องเหลือตัวอักษรอังกฤษหรือตัวเลข 8–30 ตัว
     /// </summary>
     public static OperationResult<ShipmentDetails> Create(string? carrierCode, string? otherCarrierName, string? trackingNumber)
     {
@@ -60,14 +60,14 @@ public sealed partial record ShipmentDetails
         return OperationResult<ShipmentDetails>.Success(new ShipmentDetails(carrier, name, number));
     }
 
-    /// <summary>Rebuilds an instance from values already validated and stored in the database.</summary>
+    /// <summary>สร้างออบเจ็กต์จากค่าที่ผ่านการตรวจและบันทึกไว้ในฐานข้อมูลแล้ว</summary>
     public static ShipmentDetails FromStored(Carrier carrier, string? otherCarrierName, string trackingNumber) =>
         new(carrier, carrier == Carrier.Other ? otherCarrierName : null, trackingNumber);
 
     [GeneratedRegex(@"[\s\-]+")]
     private static partial Regex Separators();
 
-    // Must match TrackingMinLength / TrackingMaxLength (a const regex cannot be built from int constants).
+    // จำนวนตัวอักษรในนิพจน์ปกติต้องตรงกับ TrackingMinLength และ TrackingMaxLength
     [GeneratedRegex(@"^[A-Z0-9]{8,30}$")]
     private static partial Regex TrackingPattern();
 }

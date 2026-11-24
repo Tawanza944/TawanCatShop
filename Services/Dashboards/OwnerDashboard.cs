@@ -106,8 +106,8 @@ public sealed class OwnerDashboard : DashboardBase
     }
 
     /// <summary>
-    /// What the shop really earns: delivered sales minus the commission Accounting deducted.
-    /// Defaults to the current month; orders not yet processed by Accounting are shown as "waiting".
+    /// สรุปรายได้ค่าคอมและต้นทุนของแพลตฟอร์มจากรายการบัญชี
+    /// ค่าเริ่มต้นคือช่วงเดือนปัจจุบัน และแสดงรายการที่ยังรอฝ่ายบัญชีดำเนินการ
     /// </summary>
     private async Task<DashboardPage> FinanceAsync(DashboardRequest request, CancellationToken cancellationToken)
     {
@@ -145,15 +145,15 @@ public sealed class OwnerDashboard : DashboardBase
     }
 
     /// <summary>
-    /// Best sellers among products the shop still sells. The inner join with products drops items of deleted products,
-    /// and grouping by product id (not by the name copied into order_items) keeps a renamed product in one row.
+    /// จัดอันดับจากสินค้าที่ยังมีอยู่ โดยเชื่อมกับตาราง products เพื่อคัดรายการที่ถูกลบออก
+    /// จัดกลุ่มด้วยรหัสสินค้าเพื่อให้ชื่อเดิมและชื่อใหม่ของสินค้าเดียวกันอยู่ในรายการเดียว
     /// </summary>
     private async Task<List<TopProduct>> TopProductsAsync(int take, CancellationToken cancellationToken) =>
         await (from item in Db.OrderItems.AsNoTracking()
                join product in Db.Products on item.ProductId equals product.Id
                where item.Order!.Status != OrderStatus.Cancelled
                group item by new { product.Id, product.Name } into g
-               // Sort and limit on the SQL aggregate first; build the record last (EF cannot ORDER BY a constructor's argument).
+               // เรียงและจำกัดจำนวนจากค่ารวมใน SQL ก่อนสร้าง record เพื่อให้ EF แปลการเรียงลำดับได้
                orderby g.Sum(i => i.TotalPrice) descending
                select new { g.Key.Name, Quantity = g.Sum(i => i.Quantity), Revenue = g.Sum(i => i.TotalPrice) })
             .Take(take)

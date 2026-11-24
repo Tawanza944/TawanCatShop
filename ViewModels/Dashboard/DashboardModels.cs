@@ -16,14 +16,14 @@ public sealed record DashboardSidebar(RoleProfile Role, IReadOnlyList<DashboardM
     public bool HasOrdersPage => Menu.Any(item => item.Key == "orders");
 }
 
-/// <summary>A number card. <see cref="Icon"/> is a Bootstrap Icons class.</summary>
+/// <summary>การ์ดตัวเลข โดย <see cref="Icon"/> เก็บชื่อคลาสของ Bootstrap Icons</summary>
 public sealed record MetricTile(string Label, string Value, string Icon, string? Note = null, bool? Up = null, bool Alert = false);
 
 public sealed record QuickAction(string Label, string Section, bool Primary = false);
 
 public sealed record GreetingBanner(string Title, string Message, IReadOnlyList<QuickAction> Actions);
 
-/// <summary>Data for a Chart.js chart, rendered by wwwroot/js/app/charts.js.</summary>
+/// <summary>ข้อมูลกราฟ Chart.js ที่ใช้ใน wwwroot/js/app/charts.js</summary>
 public sealed record ChartData(string Kind, IReadOnlyList<string> Labels, IReadOnlyList<decimal> Values, string SeriesLabel, string Format = "number");
 
 public sealed record Paged<T>(IReadOnlyList<T> Items, int Page, int PageCount, int Total)
@@ -33,7 +33,7 @@ public sealed record Paged<T>(IReadOnlyList<T> Items, int Page, int PageCount, i
     public bool HasNext => Page < PageCount;
 }
 
-/// <summary>Everything the dashboard shell needs to render one section for one role.</summary>
+/// <summary>ข้อมูลที่หน้า Dashboard ใช้แสดงหนึ่งส่วนสำหรับบทบาทปัจจุบัน</summary>
 public sealed class DashboardPage
 {
     public required RoleProfile Role { get; init; }
@@ -50,7 +50,7 @@ public sealed class DashboardPage
 
     public IReadOnlyList<MetricTile> Metrics { get; init; } = [];
 
-    /// <summary>Partial view under Views/Account/Sections that renders <see cref="Model"/>.</summary>
+    /// <summary>ชื่อ Partial ใต้ Views/Account/Sections ที่ใช้แสดง <see cref="Model"/></summary>
     public required string PartialName { get; init; }
 
     public object? Model { get; init; }
@@ -58,7 +58,7 @@ public sealed class DashboardPage
     public required string DisplayName { get; init; }
 }
 
-/// <summary>Model for the shared pager partial; links keep the current search, filter and date range.</summary>
+/// <summary>ข้อมูลลิงก์แบ่งหน้า โดยเก็บคำค้น ตัวกรอง และช่วงวันที่ปัจจุบัน</summary>
 public sealed record PagerModel(string Section, int Page, int PageCount, int Total, string? Search = null, string? Filter = null)
 {
     public WebApplication1.Domain.Accounting.PayoutFilter? Payout { get; init; }
@@ -66,7 +66,7 @@ public sealed record PagerModel(string Section, int Page, int PageCount, int Tot
 
     public DateOnly? ToDate { get; init; }
 
-    /// <summary>ISO yyyy-MM-dd for links and &lt;input type="date"&gt;, independent of the server culture.</summary>
+    /// <summary>จัดวันที่แบบ ISO yyyy-MM-dd สำหรับลิงก์และ &lt;input type="date"&gt; โดยใช้รูปแบบเดียวกันทุกเครื่อง</summary>
     public static string? Iso(DateOnly? date) => date?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 
     public static PagerModel From<T>(Paged<T> paged, string section, string? search = null, string? filter = null) =>

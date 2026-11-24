@@ -1,8 +1,8 @@
 namespace WebApplication1.Services.Identity;
 
 /// <summary>
-/// Read-only view of the signed-in user for the current request.
-/// Controllers, filters and view components depend on this instead of reading the session directly.
+/// ข้อมูลแบบอ่านอย่างเดียวของผู้ที่ล็อกอินในคำขอปัจจุบัน
+/// Controller, Filter และ View Component อ่านข้อมูลผู้ใช้ผ่านบริการนี้
 /// </summary>
 public interface ICurrentUserService
 {
@@ -14,14 +14,14 @@ public interface ICurrentUserService
 
     string? DisplayName { get; }
 
-    /// <summary>Profile picture path, or null when the user has not uploaded one.</summary>
+    /// <summary>ตำแหน่งรูปโปรไฟล์ หากผู้ใช้ยังไม่เคยอัปโหลดจะเป็น null</summary>
     string? AvatarUrl { get; }
 
-    /// <summary>The user's role; <see cref="Domain.Identity.Roles.User"/> when signed in without a staff role.</summary>
+    /// <summary>บทบาทของผู้ใช้ โดยผู้ที่ล็อกอินและไม่มีบทบาทพนักงานใช้ <see cref="Domain.Identity.Roles.User"/></summary>
     string? Role { get; }
 
     bool IsInRole(params string[] roles);
 
-    /// <summary>The signed-in user's id. Throws when called for an anonymous request.</summary>
+    /// <summary>รหัสผู้ใช้ที่ล็อกอิน หากเรียกในคำขอของผู้ไม่ล็อกอินจะเกิดข้อผิดพลาด</summary>
     int RequireUserId();
 }

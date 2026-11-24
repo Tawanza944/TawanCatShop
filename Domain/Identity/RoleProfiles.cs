@@ -1,6 +1,6 @@
 namespace WebApplication1.Domain.Identity;
 
-/// <summary>How each role is named in the UI and where its "my page" link points.</summary>
+/// <summary>ชื่อของแต่ละบทบาทที่แสดงบนหน้าเว็บและข้อมูลประกอบของเมนูบัญชี</summary>
 public sealed record RoleProfile(string Role, string ThaiName, string WorkspaceTitle, string Icon, bool Shops);
 
 public static class RoleProfiles

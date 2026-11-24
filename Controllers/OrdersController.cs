@@ -10,8 +10,8 @@ using WebApplication1.Services.Identity;
 namespace WebApplication1.Controllers;
 
 /// <summary>
-/// Order actions submitted from dashboard forms (Tag Helper forms, Post/Redirect/Get).
-/// Who may do what is decided by <see cref="IOrderWorkflow"/> inside the service.
+/// รับคำสั่งจากฟอร์มจัดการออเดอร์ที่สร้างด้วย Tag Helper แล้วพากลับด้วย Post/Redirect/Get
+/// บริการใช้ <see cref="IOrderWorkflow"/> ตรวจว่าแต่ละบทบาททำรายการใดได้
 /// </summary>
 public sealed class OrdersController : Controller
 {
@@ -26,7 +26,7 @@ public sealed class OrdersController : Controller
         _currentUser = currentUser;
     }
 
-    /// <summary>Printable shipping label for one order. Opens in a new tab and is printed with the browser.</summary>
+    /// <summary>เปิดใบปะหน้าออเดอร์เพื่อให้พิมพ์ผ่านเบราว์เซอร์ได้</summary>
     [HttpGet]
     [RequireRole(Roles.Shop)]
     public async Task<IActionResult> Label(string orderNo, CancellationToken cancellationToken)

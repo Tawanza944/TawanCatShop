@@ -3,15 +3,15 @@ using WebApplication1.Domain.Common;
 namespace WebApplication1.Services.Storage;
 
 /// <summary>
-/// Stores uploaded images under App_Data/uploads/{folder} with a random file name and serves them at /uploads/{folder}/...
-/// The folder is outside wwwroot on purpose: wwwroot holds the site's own assets, and dotnet watch restarts (and on
-/// .NET 10 crashes) whenever a file appears there. Program.cs maps <see cref="RequestPath"/> to <see cref="RootFor"/>.
+/// เก็บรูปใน App_Data/uploads/{folder} ด้วยชื่อสุ่มและเปิดให้อ่านผ่าน /uploads/{folder}/...
+/// แยกรูปอัปโหลดจากไฟล์เว็บใน wwwroot เพื่อให้ dotnet watch ไม่โหลดแอปใหม่เพราะรูปที่อัปโหลด
+/// Program.cs เชื่อม <see cref="RequestPath"/> กับโฟลเดอร์จาก <see cref="RootFor"/>
 /// </summary>
 public sealed class LocalImageStorage : IImageStorage
 {
     public const long MaxBytes = 5 * 1024 * 1024;
 
-    /// <summary>URL prefix of every uploaded file; stored in the database as part of the image URL.</summary>
+    /// <summary>ส่วนต้นของ URL รูปที่อัปโหลด ซึ่งจัดเก็บเป็นส่วนหนึ่งของ URL รูปในฐานข้อมูล</summary>
     public const string RequestPath = "/uploads";
 
     private static readonly IReadOnlyDictionary<string, string> AllowedTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -31,7 +31,7 @@ public sealed class LocalImageStorage : IImageStorage
         _logger = logger;
     }
 
-    /// <summary>Physical folder that holds uploads.</summary>
+    /// <summary>โฟลเดอร์บนดิสก์ที่ใช้เก็บไฟล์อัปโหลด</summary>
     public static string RootFor(IWebHostEnvironment environment) => Path.Combine(environment.ContentRootPath, "App_Data", "uploads");
 
     public async Task<OperationResult<string>> SaveAsync(IFormFile file, string folder, CancellationToken cancellationToken = default)
@@ -55,7 +55,7 @@ public sealed class LocalImageStorage : IImageStorage
         var directory = Path.Combine(_root, folder);
         Directory.CreateDirectory(directory);
 
-        // Never trust the uploaded file name: generate our own.
+        // สุ่มชื่อไฟล์ฝั่งเซิร์ฟเวอร์เพื่อควบคุมชื่อที่จัดเก็บ
         var fileName = $"{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
         await using (var stream = File.Create(Path.Combine(directory, fileName)))
         {
@@ -72,7 +72,7 @@ public sealed class LocalImageStorage : IImageStorage
             return;
         }
 
-        // Resolve and make sure the path stays inside the uploads folder ("../" in a URL must not escape it).
+        // ตรวจ path หลังแปลงเป็นตำแหน่งเต็ม เพื่อให้ยังอยู่ใต้โฟลเดอร์เก็บไฟล์อัปโหลด
         var root = Path.GetFullPath(_root) + Path.DirectorySeparatorChar;
         var path = Path.GetFullPath(Path.Combine(_root, publicUrl[(RequestPath.Length + 1)..]));
         if (!path.StartsWith(root, StringComparison.OrdinalIgnoreCase))

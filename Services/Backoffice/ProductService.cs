@@ -115,7 +115,7 @@ public sealed class ProductService : IProductService
             return OperationResult.Fail("ไม่พบสินค้านี้");
         }
 
-        // Order history keeps its own copy of name/price/image, so removing the product is safe.
+        // ประวัติออเดอร์เก็บสำเนาชื่อ ราคา และตำแหน่งรูปสินค้าไว้เพื่อให้ยังแสดงได้หลังลบสินค้า
         _db.Products.Remove(product);
         await _db.SaveChangesAsync(cancellationToken);
 

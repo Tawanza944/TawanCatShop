@@ -7,8 +7,8 @@ using WebApplication1.Options;
 namespace WebApplication1.Services.Orders;
 
 /// <summary>
-/// Next number = highest number used today + 1. The unique index on orders.order_no catches the rare race
-/// where two checkouts read the same value; <see cref="CheckoutService"/> retries in that case.
+/// หาเลขลำดับสูงสุดของวันแล้วบวกหนึ่ง โดยดัชนี unique ที่ orders.order_no ตรวจการชนของเลข
+/// เมื่อคำขอพร้อมกันได้เลขเดียวกัน <see cref="CheckoutService"/> จะลองสร้างเลขใหม่
 /// </summary>
 public sealed class DailyOrderNumberGenerator : IOrderNumberGenerator
 {

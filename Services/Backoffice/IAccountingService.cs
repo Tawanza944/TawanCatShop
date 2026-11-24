@@ -3,7 +3,7 @@ using WebApplication1.Domain.Common;
 namespace WebApplication1.Services.Backoffice;
 
 /// <summary>
-/// The ledger: income and costs computed from delivered orders (single source of truth) plus entries Accounting adds by hand.
+/// รวมข้อมูลสมุดบัญชีที่คำนวณจากออเดอร์กับรายการที่ฝ่ายบัญชีบันทึกเอง
 /// </summary>
 public interface IAccountingService
 {
@@ -21,7 +21,7 @@ public interface IAccountingService
 
     Task<OperationResult<bool>> DeleteEntryAsync(int entryId, CancellationToken cancellationToken = default);
 
-    /// <summary>CSV (UTF-8 with BOM so Excel shows Thai correctly).</summary>
+    /// <summary>ส่งออก CSV แบบ UTF-8 พร้อม BOM เพื่อให้ Excel อ่านภาษาไทยได้ถูกต้อง</summary>
     byte[] ToCsv(LedgerReport report);
 }
 

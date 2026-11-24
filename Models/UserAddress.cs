@@ -1,6 +1,6 @@
 namespace WebApplication1.Models;
 
-/// <summary>A saved delivery address (table user_addresses). One address per user can be the default.</summary>
+/// <summary>ที่อยู่จัดส่งที่บันทึกในตาราง user_addresses ผู้ใช้แต่ละคนตั้งที่อยู่หลักได้หนึ่งรายการ</summary>
 public class UserAddress
 {
     public int Id { get; set; }

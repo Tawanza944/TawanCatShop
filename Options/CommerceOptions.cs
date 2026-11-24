@@ -1,6 +1,6 @@
 namespace WebApplication1.Options;
 
-/// <summary>Business rules that may change without touching code. Bound from appsettings.json → "Commerce".</summary>
+/// <summary>กติกาการค้าที่ตั้งค่าได้จากหัวข้อ Commerce ใน appsettings.json</summary>
 public sealed class CommerceOptions
 {
     public const string SectionName = "Commerce";

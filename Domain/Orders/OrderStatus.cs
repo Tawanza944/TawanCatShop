@@ -1,7 +1,7 @@
 namespace WebApplication1.Domain.Orders;
 
 /// <summary>
-/// Lifecycle of an order. Stored in <c>orders.status</c> as the lowercase code from <see cref="OrderStatusCodes"/>.
+/// วงจรสถานะออเดอร์ เก็บใน <c>orders.status</c> ด้วยรหัสตัวพิมพ์เล็กจาก <see cref="OrderStatusCodes"/>
 /// </summary>
 public enum OrderStatus
 {

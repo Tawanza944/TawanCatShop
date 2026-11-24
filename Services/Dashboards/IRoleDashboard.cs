@@ -3,8 +3,8 @@ using WebApplication1.ViewModels.Dashboard;
 namespace WebApplication1.Services.Dashboards;
 
 /// <summary>
-/// Strategy for one role's back office: its menu and how each section is built.
-/// AccountController picks the strategy that matches the signed-in user's role.
+/// กำหนดเมนูและวิธีเตรียมข้อมูลหลังบ้านของแต่ละบทบาทด้วย Strategy
+/// AccountController เลือก Dashboard ตามบทบาทของผู้ใช้ที่ล็อกอิน
 /// </summary>
 public interface IRoleDashboard
 {

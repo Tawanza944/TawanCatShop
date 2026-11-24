@@ -3,13 +3,13 @@ using WebApplication1.Models;
 namespace WebApplication1.Services.Identity;
 
 /// <summary>
-/// Writes and clears the signed-in user in the session. Paired with <see cref="ICurrentUserService"/>, which reads it.
+/// เขียนและล้างข้อมูลผู้ใช้ในเซสชัน ส่วน <see cref="ICurrentUserService"/> ใช้อ่านค่าที่บันทึก
 /// </summary>
 public interface IAuthSession
 {
     void SignIn(User user, string role);
 
-    /// <summary>Re-reads name, username and email after the user edits their profile.</summary>
+    /// <summary>อ่านชื่อ ชื่อผู้ใช้ และอีเมลใหม่หลังผู้ใช้แก้โปรไฟล์</summary>
     void RefreshProfile(User user);
 
     void SetAvatar(string avatar);

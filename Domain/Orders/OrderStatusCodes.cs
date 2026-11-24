@@ -1,8 +1,8 @@
 namespace WebApplication1.Domain.Orders;
 
 /// <summary>
-/// The single place that maps <see cref="OrderStatus"/> to its database code and its Thai label.
-/// The mapping is explicit so renaming an enum member can never change what is stored.
+/// รวมการแปลง <see cref="OrderStatus"/> เป็นรหัสฐานข้อมูลและชื่อภาษาไทยไว้ที่เดียว
+/// กำหนดรหัสไว้ชัดเจนเพื่อให้เปลี่ยนชื่อสมาชิก enum ได้โดยคงรหัสที่จัดเก็บ
 /// </summary>
 public static class OrderStatusCodes
 {
@@ -40,7 +40,7 @@ public static class OrderStatusCodes
         _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
     };
 
-    /// <summary>Position on the customer's tracking bar (1-based). Cancelled orders sit before the first step.</summary>
+    /// <summary>ลำดับในแถบติดตามของลูกค้าเริ่มที่ 1 ส่วนออเดอร์ยกเลิกใช้ค่าก่อนขั้นแรก</summary>
     public static int ToStepIndex(this OrderStatus status) => status switch
     {
         OrderStatus.Pending => 1,

@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace WebApplication1.TagHelpers;
 
 /// <summary>
-/// Marks a navigation link as the current page.
-/// Usage: <c>&lt;a asp-controller="Home" asp-action="Product" lc-active-when="Home/Product,ProductDetail"&gt;</c>
-/// — the value lists Controller/Action pairs; an action without a controller reuses the previous controller.
+/// ทำเครื่องหมายลิงก์เมนูที่ตรงกับหน้าปัจจุบัน
+/// ตัวอย่าง <c>&lt;a asp-controller="Home" asp-action="Product" lc-active-when="Home/Product,ProductDetail"&gt;</c>
+/// ค่าที่ระบุเป็นคู่ Controller/Action หากมีเฉพาะ Action ให้ใช้ Controller จากรายการก่อน
 /// </summary>
 [HtmlTargetElement("a", Attributes = AttributeName)]
 public sealed class ActiveRouteTagHelper : TagHelper

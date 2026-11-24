@@ -1,12 +1,12 @@
 namespace WebApplication1.Domain.Orders;
 
 /// <summary>
-/// State machine for orders: which role may move an order from one status to another.
+/// กำหนดว่าแต่ละบทบาทเปลี่ยนออเดอร์จากสถานะหนึ่งไปอีกสถานะใดได้
 /// </summary>
 public interface IOrderWorkflow
 {
     bool CanTransition(OrderStatus from, OrderStatus to, string? actorRole);
 
-    /// <summary>Message shown to the customer on the tracking page after the order reaches <paramref name="status"/>.</summary>
+    /// <summary>ข้อความหน้าติดตามที่ลูกค้าเห็นเมื่อออเดอร์ถึง <paramref name="status"/></summary>
     string TrackingNoteFor(OrderStatus status);
 }

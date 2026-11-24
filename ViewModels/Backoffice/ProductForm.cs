@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.ViewModels.Backoffice;
 
-/// <summary>Add/edit product form posted by the Shop. Id = 0 means a new product.</summary>
+/// <summary>ฟอร์มเพิ่มหรือแก้สินค้าที่ส่งจากหลังร้าน ค่า Id เท่ากับ 0 หมายถึงเพิ่มสินค้าใหม่</summary>
 public sealed class ProductForm
 {
     public int Id { get; set; }

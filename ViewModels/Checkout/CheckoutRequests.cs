@@ -15,7 +15,7 @@ public sealed class CartLineInput
     public CartLineRequest ToRequest() => new(ProductId, Quantity);
 }
 
-/// <summary>Body of POST /Checkout/Quote — used to show the real price in the cart and checkout form.</summary>
+/// <summary>ข้อมูล POST /Checkout/Quote สำหรับขอคำนวณยอดในตะกร้าและหน้าชำระเงิน</summary>
 public sealed class QuoteRequest
 {
     public bool UseRewards { get; set; }
@@ -25,7 +25,7 @@ public sealed class QuoteRequest
     public string? CouponCode { get; set; }
 }
 
-/// <summary>Body of POST /Checkout/PlaceOrder. Only product ids and quantities are trusted; prices come from the database.</summary>
+/// <summary>ข้อมูล POST /Checkout/PlaceOrder โดยเซิร์ฟเวอร์ใช้รหัสกับจำนวนสินค้าเพื่ออ่านราคาใหม่จากฐานข้อมูล</summary>
 public sealed class PlaceOrderRequest
 {
     public bool UseRewards { get; set; }

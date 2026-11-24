@@ -12,7 +12,7 @@ using WebApplication1.ViewModels.Dashboard;
 
 namespace WebApplication1.Services.Dashboards;
 
-/// <summary>Current price and stock of products in past orders, for the "buy again" button.</summary>
+/// <summary>ราคาและสต็อกปัจจุบันสำหรับปุ่มซื้อซ้ำจากประวัติออเดอร์</summary>
 public sealed record ProductSnapshot(int Id, string Name, decimal Price, string? ImageUrl, int Stock);
 
 public sealed record CustomerOrdersModel(
@@ -47,8 +47,8 @@ public sealed class CustomerDashboard : DashboardBase
     ];
 
     /// <summary>
-    /// Codes the customer can still use (active, not expired, not used yet) and the history of codes already used.
-    /// A cancelled order gives its code back, because cancelling deletes the user_coupons row.
+    /// อ่านคูปองที่เก็บและยังใช้ได้ พร้อมประวัติการใช้คูปองของลูกค้า
+    /// เมื่อระบบยกเลิกและลบการใช้จาก user_coupons ลูกค้าจึงใช้สิทธิ์เดิมได้อีกครั้ง
     /// </summary>
     private async Task<CustomerCouponsModel> CouponsAsync(int userId, CancellationToken cancellationToken)
     {

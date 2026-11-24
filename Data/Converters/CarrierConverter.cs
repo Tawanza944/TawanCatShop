@@ -3,7 +3,7 @@ using WebApplication1.Domain.Shipping;
 
 namespace WebApplication1.Data.Converters;
 
-/// <summary>Stores <see cref="Carrier"/> as its stable code ('flash', 'thaipost-ems', ...) instead of an enum number.</summary>
+/// <summary>บันทึก <see cref="Carrier"/> เป็นรหัสคงที่ เช่น 'flash' หรือ 'thaipost-ems' เพื่อให้ค่าในฐานอ่านได้ตรงกัน</summary>
 public sealed class CarrierConverter : ValueConverter<Carrier, string>
 {
     public CarrierConverter()

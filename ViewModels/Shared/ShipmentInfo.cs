@@ -3,25 +3,25 @@ using WebApplication1.Models;
 
 namespace WebApplication1.ViewModels.Shared;
 
-/// <summary>What a page should say about a parcel shipment.</summary>
+/// <summary>รูปแบบข้อมูลการจัดส่งที่หน้าเว็บจะแสดง</summary>
 public enum ShipmentDisplay
 {
-    /// <summary>The shop recorded a carrier and tracking number.</summary>
+    /// <summary>ร้านบันทึกชื่อขนส่งและเลขติดตามแล้ว</summary>
     Tracked,
 
-    /// <summary>Parcel order that left the shop before tracking numbers existed (no row in order_shipments).</summary>
+    /// <summary>ออเดอร์ที่ส่งก่อนมีระบบเลขติดตาม จึงไม่มีแถวใน order_shipments</summary>
     LegacyWithoutTracking
 }
 
 /// <summary>
-/// Shipment details prepared for the customer's order card and the accounting order list.
-/// One decision for both pages, so they can never disagree about what to show.
+/// เตรียมข้อมูลพัสดุให้การ์ดออเดอร์ของลูกค้าและรายการของฝ่ายบัญชี
+/// ใช้กติกาการแสดงผลร่วมกันเพื่อให้ทั้งสองหน้าแสดงข้อมูลตรงกัน
 /// </summary>
 public sealed record ShipmentInfo(ShipmentDisplay Display, string? CarrierName, string? TrackingNumber, DateTime? ShippedAt)
 {
     /// <summary>
-    /// Returns null when there is nothing to show: rider orders, orders without shop data, cancelled orders
-    /// and parcel orders the shop has not shipped yet.
+    /// คืน null สำหรับออเดอร์ไรเดอร์ ออเดอร์ที่ไม่มีข้อมูลร้าน ออเดอร์ยกเลิก
+    /// และออเดอร์พัสดุที่ร้านยังไม่ได้ส่ง
     /// </summary>
     public static ShipmentInfo? For(bool? riderDelivery, OrderStatus status, OrderShipment? shipment)
     {

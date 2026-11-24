@@ -19,7 +19,7 @@ public sealed record ShopProductsModel(Paged<Product> Products, string? Search, 
 
 public sealed record ShopRevenueModel(ChartData Revenue, Paged<SettlementRow> Orders, decimal NetTransferred, decimal NetPending, decimal NetAwaiting);
 
-/// <summary>Orders out of the shop (delivering or delivered). <see cref="RiderNames"/> maps users.id → name for the rider column.</summary>
+/// <summary>ออเดอร์ที่ออกจากร้านแล้ว <see cref="RiderNames"/> ใช้ค้นชื่อไรเดอร์จากรหัสใน users</summary>
 public sealed record ShopShippedModel(Paged<Order> Orders, string? StatusFilter, string? Search,
     IReadOnlyDictionary<OrderStatus, int> Counts, IReadOnlyDictionary<int, string> RiderNames);
 
@@ -131,7 +131,7 @@ public sealed class ShopDashboard : DashboardBase
             await SettlementRowsAsync(delivered, page, cancellationToken), summary.NetTransferred, summary.NetPending, summary.NetAwaiting);
     }
 
-    /// <summary>Orders that already left the shop: on the way with a rider, or received by the customer.</summary>
+    /// <summary>ออเดอร์ของร้านที่กำลังจัดส่งหรือส่งถึงลูกค้าแล้ว</summary>
     private async Task<ShopShippedModel> ShippedAsync(DashboardRequest request, CancellationToken cancellationToken)
     {
         var counts = await ShopOrders.Where(o => ShippedStatuses.Contains(o.Status))

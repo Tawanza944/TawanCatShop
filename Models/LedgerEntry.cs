@@ -1,6 +1,6 @@
 namespace WebApplication1.Models;
 
-/// <summary>An income or expense recorded by hand by Accounting (table ledger_entries).</summary>
+/// <summary>รายรับหรือรายจ่ายที่ฝ่ายบัญชีบันทึกเองในตาราง ledger_entries</summary>
 public class LedgerEntry
 {
     public const string Income = "income";

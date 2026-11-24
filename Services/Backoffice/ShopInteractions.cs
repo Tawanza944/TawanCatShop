@@ -66,7 +66,7 @@ public sealed class ShopInteractions(AppDbContext db, TimeProvider clock)
         }
         catch (DbUpdateException error) when (error.InnerException is MySql.Data.MySqlClient.MySqlException { Number: 1062 })
         {
-            // The same customer followed this shop in another request.
+            // รองรับกรณีคำขออื่นบันทึกการติดตามร้านเดียวกันให้ลูกค้าคนนี้ไปแล้ว
         }
     }
 

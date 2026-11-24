@@ -64,7 +64,7 @@ public sealed class ProfileService : IProfileService
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
         if (user is null) return OperationResult.Fail("ไม่พบบัญชีนี้");
 
-        // Uses the existing PasswordHelper unchanged.
+        // ตรวจรหัสผ่านผ่าน PasswordHelper ที่ระบบใช้ร่วมกัน
         if (!PasswordHelper.VerifyPassword(form.CurrentPassword, user.PasswordHash))
             return OperationResult.Fail("รหัสผ่านปัจจุบันไม่ถูกต้อง");
         if (form.CurrentPassword == form.NewPassword)

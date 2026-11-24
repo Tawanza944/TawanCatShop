@@ -12,7 +12,7 @@ using WebApplication1.ViewModels.Dashboard;
 
 namespace WebApplication1.Services.Dashboards;
 
-/// <summary>One user in the admin list. Init-only properties keep it composable inside EF Core LINQ queries.</summary>
+/// <summary>ข้อมูลผู้ใช้หนึ่งแถวในหลังบ้าน ใช้พร็อพเพอร์ตีแบบ init เพื่อประกอบ LINQ ของ EF Core</summary>
 public sealed record AdminUserRow
 {
     public int Id { get; init; }
@@ -163,7 +163,7 @@ public sealed class AdminDashboard : DashboardBase
                from membership in memberships.DefaultIfEmpty()
                join role in Db.Roles on membership.RoleId equals role.Id into roles
                from assigned in roles.DefaultIfEmpty()
-               // Member-init (not a constructor call) so EF Core can still add Where/OrderBy/GroupBy on top of this projection.
+               // กำหนดพร็อพเพอร์ตีรายตัวเพื่อให้ EF Core ต่อ Where, OrderBy หรือ GroupBy กับ Query ได้
                select new AdminUserRow
                {
                    Id = user.Id,

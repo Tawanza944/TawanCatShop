@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.ViewModels.Backoffice;
 
-/// <summary>Admin's add/edit coupon form. Id = 0 creates a coupon.</summary>
+/// <summary>ข้อมูลฟอร์มแอดมินสำหรับเพิ่มและแก้คูปอง โดย Id เท่ากับ 0 หมายถึงเพิ่มใหม่</summary>
 public sealed class CouponForm
 {
     public int Id { get; set; }

@@ -1,6 +1,6 @@
 namespace WebApplication1.Options;
 
-/// <summary>Shop contact details shown in the footer and help page. Bound from appsettings.json → "StoreInfo".</summary>
+/// <summary>ข้อมูลติดต่อที่แสดงในท้ายเว็บและหน้าช่วยเหลือ จากหัวข้อ StoreInfo ใน appsettings.json</summary>
 public sealed class StoreInfoOptions
 {
     public const string SectionName = "StoreInfo";
@@ -22,7 +22,7 @@ public sealed class StoreInfoOptions
     public List<SocialAccount> Socials { get; set; } = [];
 }
 
-/// <summary>A social account. <see cref="Url"/> is optional: without it the handle is shown as text, not a link.</summary>
+/// <summary>ข้อมูลบัญชีโซเชียล หากไม่มี <see cref="Url"/> จะแสดงชื่อบัญชีเป็นข้อความ</summary>
 public sealed class SocialAccount
 {
     public string Platform { get; set; } = string.Empty;

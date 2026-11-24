@@ -118,7 +118,7 @@ public sealed class ReviewService : IReviewService
             .Select(i => (int?)i.OrderId)
             .FirstOrDefaultAsync(cancellationToken);
 
-    /// <summary>products.rating/review_count are a cached summary of product_reviews for fast listing.</summary>
+    /// <summary>products.rating และ review_count เก็บยอดสรุปจาก product_reviews เพื่อให้โหลดหน้ารวมสินค้าได้เร็ว</summary>
     private async Task RefreshProductRatingAsync(int productId, CancellationToken cancellationToken)
     {
         var ratings = await _db.ProductReviews.Where(r => r.ProductId == productId).Select(r => (int)r.Rating).ToListAsync(cancellationToken);
