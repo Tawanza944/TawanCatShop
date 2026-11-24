@@ -1,0 +1,239 @@
+@model ProfilePageViewModel
+@using System.Text.Json
+@using WebApplication1.ViewComponents
+@{
+    ViewData["Title"] = "บัญชีของฉัน";
+    ViewData["LayoutVariant"] = LayoutVariant.Compact;
+    var user = Model.User;
+    var customer = Model.Sidebar.Role.Role == WebApplication1.Domain.Identity.Roles.User;
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    var tabs = new (string Key, string Title, string Icon)[]
+    {
+        ("details", "ข้อมูลส่วนตัว", "bi-person"),
+        ("password", "รหัสผ่าน", "bi-key"),
+        ("addresses", "ที่อยู่จัดส่ง", "bi-geo-alt"),
+        ("orders", "คำสั่งซื้อล่าสุด", "bi-bag")
+    };
+    var stamps = Math.Min(Model.OrderCount, 10);
+}
+
+<div class="lc-desk">
+    <partial name="_DashboardSidebar" model="Model.Sidebar" />
+    <div class="lc-desk__main lc-desk__main--profile">
+        <div class="lc-me">
+            <aside class="lc-me__side">
+                <div class="lc-member">
+                    <div class="lc-member__top">
+                        <span class="lc-wordmark">Love<span class="lc-wordmark__o">C</span>at</span>
+                        <span class="lc-member__role">@Model.Sidebar.Role.ThaiName</span>
+                    </div>
+
+                    <form class="lc-member__photo" asp-controller="Account" asp-action="UpdateAvatar" method="post" enctype="multipart/form-data">
+                        <label title="เปลี่ยนรูปโปรไฟล์">
+                            @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                            {
+                                <img src="@user.AvatarUrl" alt="รูปโปรไฟล์ของ @user.Name" />
+                            }
+                            else
+                            {
+                                <span class="lc-member__initial" aria-hidden="true">@user.Name[..1].ToUpperInvariant()</span>
+                            }
+                            <span class="lc-member__camera"><i class="bi bi-camera" aria-hidden="true"></i></span>
+                            <input class="visually-hidden" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" data-auto-upload />
+                        </label>
+                        <noscript><button class="lc-btn lc-btn--sm lc-btn--outline" type="submit">อัปโหลด</button></noscript>
+                    </form>
+
+                    <h1 class="lc-member__name">@user.Name</h1>
+                    <p class="lc-member__handle">@@@user.Username</p>
+
+                    @if (customer)
+                    {
+                    <div class="lc-member__stamps" aria-label="สั่งซื้อแล้ว @Model.OrderCount ครั้ง">
+                        @for (var i = 0; i < 10; i++)
+                        {
+                            <span class="@(i < stamps ? "is-stamped" : null)"><i class="bi bi-suit-heart-fill" aria-hidden="true"></i></span>
+                        }
+                    </div>
+                    }
+                    <p class="lc-member__foot">
+                        @if (customer) { <span>สั่งซื้อแล้ว <b>@Model.OrderCount</b> ครั้ง</span> }
+                        <span>สมาชิกตั้งแต่ @(user.CreatedAt?.ToLocalTime().ToString("MMM yyyy", thai) ?? "—")</span>
+                    </p>
+                </div>
+
+                <nav class="lc-me__tabs" aria-label="หัวข้อบัญชี">
+                    @foreach (var tab in tabs.Where(tab => customer || tab.Key is "details" or "password"))
+                    {
+                        <a asp-controller="Account" asp-action="Profile" asp-route-tab="@tab.Key" aria-current="@(tab.Key == Model.Tab ? "page" : null)">
+                            <i class="bi @tab.Icon" aria-hidden="true"></i> @tab.Title
+                        </a>
+                    }
+                    <a asp-controller="Account" asp-action="Index"><i class="bi bi-grid" aria-hidden="true"></i> @Model.Sidebar.Role.WorkspaceTitle</a>
+                </nav>
+            </aside>
+
+            <section class="lc-me__main">
+                @switch (Model.Tab)
+                {
+                    case "password":
+                        <header class="lc-me__head">
+                            <h2>เปลี่ยนรหัสผ่าน</h2>
+                            <p>ใส่รหัสเดิมก่อน แล้วตั้งรหัสใหม่อย่างน้อย 6 ตัว</p>
+                        </header>
+                        <form class="lc-me__form lc-me__form--narrow" asp-controller="Account" asp-action="ChangePassword" method="post">
+                            <label class="lc-field"><span class="lc-label">รหัสผ่านปัจจุบัน</span><input class="lc-input" type="password" name="CurrentPassword" required autocomplete="current-password" /></label>
+                            <label class="lc-field"><span class="lc-label">รหัสผ่านใหม่</span><input class="lc-input" type="password" name="NewPassword" required minlength="6" autocomplete="new-password" /></label>
+                            <label class="lc-field"><span class="lc-label">พิมพ์รหัสผ่านใหม่อีกครั้ง</span><input class="lc-input" type="password" name="ConfirmPassword" required minlength="6" autocomplete="new-password" /></label>
+                            <div><button class="lc-btn lc-btn--primary" type="submit">เปลี่ยนรหัสผ่าน</button></div>
+                        </form>
+                        break;
+
+                    case "addresses":
+                        <header class="lc-me__head lc-me__head--row">
+                            <div>
+                                <h2>ที่อยู่จัดส่ง</h2>
+                                <p>ที่อยู่หลักจะถูกเลือกให้อัตโนมัติตอนชำระเงิน</p>
+                            </div>
+                            <button type="button" class="lc-btn lc-btn--primary" data-bs-toggle="modal" data-bs-target="#addressModal">
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i> เพิ่มที่อยู่
+                            </button>
+                        </header>
+                        @if (Model.Addresses.Count == 0)
+                        {
+                            <div class="lc-empty-state lc-desk-empty">
+                                <partial name="_CatIllustration" model="new CatIllustration(CatPose.Peeking)" />
+                                <p class="lc-empty-state__title">ยังไม่มีที่อยู่ที่บันทึกไว้</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="lc-addresses">
+                                @foreach (var address in Model.Addresses)
+                                {
+                                    var fill = JsonSerializer.Serialize(new { address.Id, address.Label, address.RecipientName, address.Phone, address.AddressLine, ProvinceCode = address.Region?.ProvinceCode, DistrictCode = address.Region?.DistrictCode, SubdistrictCode = address.Region?.SubdistrictCode, PostalCode = address.Region?.PostalCode });
+                                    <article class="lc-address @(address.IsDefault ? "is-default" : null)">
+                                        <header>
+                                            <strong><i class="bi @(address.Label.Contains("ที่ทำงาน") ? "bi-building" : "bi-house-heart")" aria-hidden="true"></i> @address.Label</strong>
+                                            @if (address.IsDefault)
+                                            {
+                                                <span class="lc-stamp">ที่อยู่หลัก</span>
+                                            }
+                                        </header>
+                                        <p><b>@address.RecipientName</b> · @address.Phone<br />@address.AddressLine @WebApplication1.Domain.Addresses.ThailandAddressCatalog.Format(address.Region?.Value)</p>
+                                        <footer>
+                                            <button type="button" class="lc-btn lc-btn--ghost lc-btn--sm" data-bs-toggle="modal" data-bs-target="#addressModal"
+                                                    data-fill="@fill" data-fill-title="แก้ไขที่อยู่"><i class="bi bi-pencil" aria-hidden="true"></i> แก้ไข</button>
+                                            @if (!address.IsDefault)
+                                            {
+                                                <form asp-controller="Account" asp-action="SetDefaultAddress" method="post">
+                                                    <input type="hidden" name="id" value="@address.Id" />
+                                                    <button class="lc-btn lc-btn--ghost lc-btn--sm" type="submit"><i class="bi bi-star" aria-hidden="true"></i> ตั้งเป็นหลัก</button>
+                                                </form>
+                                            }
+                                            <form asp-controller="Account" asp-action="DeleteAddress" method="post" data-confirm="ลบที่อยู่ “@address.Label”?">
+                                                <input type="hidden" name="id" value="@address.Id" />
+                                                <button class="lc-btn lc-btn--ghost lc-btn--sm lc-danger-text" type="submit" aria-label="ลบที่อยู่ @address.Label"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+                                            </form>
+                                        </footer>
+                                    </article>
+                                }
+                            </div>
+                        }
+                        break;
+
+                    case "orders":
+                        <header class="lc-me__head lc-me__head--row">
+                            <div>
+                                <h2>คำสั่งซื้อล่าสุด</h2>
+                                <p>ดูสถานะทั้งหมดและยกเลิกได้ที่หน้าคำสั่งซื้อ</p>
+                            </div>
+                            @if (Model.Sidebar.HasOrdersPage)
+                            {
+                                <a class="lc-btn lc-btn--outline" asp-controller="Account" asp-action="Orders">ดูทั้งหมด</a>
+                            }
+                        </header>
+                        @if (Model.RecentOrders.Count == 0)
+                        {
+                            <div class="lc-empty-state lc-desk-empty">
+                                <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sitting)" />
+                                <p class="lc-empty-state__title">ยังไม่เคยสั่งซื้อ</p>
+                                <a class="lc-btn lc-btn--primary" asp-controller="Home" asp-action="Product">ไปเลือกสินค้า</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <ul class="lc-me__orders">
+                                @foreach (var order in Model.RecentOrders)
+                                {
+                                    <li>
+                                        <div class="lc-me__thumbs">
+                                            @foreach (var item in order.Items.Take(3))
+                                            {
+                                                @if (!string.IsNullOrEmpty(item.ProductImage))
+                                                {
+                                                    <img src="@item.ProductImage" alt="" loading="lazy" />
+                                                }
+                                            }
+                                        </div>
+                                        <div>
+                                            <strong class="lc-mono">@order.OrderNo</strong>
+                                            <small>@order.CreatedAt.ToLocalTime().ToString("d MMM yyyy", thai) · @order.Items.Sum(i => i.Quantity) ชิ้น</small>
+                                        </div>
+                                        <span class="@StatusTone.CssClass(order.Status)">@order.StatusThai</span>
+                                        <b>฿@order.TotalAmount.ToString("N0")</b>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        break;
+
+                    default:
+                        <header class="lc-me__head">
+                            <h2>ข้อมูลส่วนตัว</h2>
+                            <p>ชื่อและเบอร์นี้จะถูกกรอกให้อัตโนมัติตอนสั่งซื้อ</p>
+                        </header>
+                        <form class="lc-me__form" asp-controller="Account" asp-action="UpdateProfile" method="post">
+                            <label class="lc-field"><span class="lc-label">ชื่อ-นามสกุล</span><input class="lc-input" name="Name" value="@Model.Profile.Name" required minlength="2" maxlength="100" /></label>
+                            <label class="lc-field"><span class="lc-label">ชื่อผู้ใช้ (ใช้เข้าสู่ระบบ)</span><input class="lc-input" name="Username" value="@Model.Profile.Username" required pattern="[A-Za-z0-9_.]{3,50}" /></label>
+                            <label class="lc-field"><span class="lc-label">อีเมล</span><input class="lc-input" type="email" name="Email" value="@Model.Profile.Email" required /></label>
+                            <label class="lc-field"><span class="lc-label">เบอร์มือถือ</span><input class="lc-input" name="PhoneNumber" value="@Model.Profile.PhoneNumber" pattern="0[0-9]{9}" placeholder="0812345678" /></label>
+                            <div class="lc-field--wide"><button class="lc-btn lc-btn--primary" type="submit">บันทึกข้อมูล</button></div>
+                        </form>
+                        <p class="lc-hint lc-me__photo-hint"><i class="bi bi-camera" aria-hidden="true"></i> กดที่รูปบนบัตรสมาชิกเพื่อเปลี่ยนรูปโปรไฟล์ (jpg, png, webp ไม่เกิน 5 MB)</p>
+                        break;
+                }
+            </section>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalTitle" aria-hidden="true" data-fill-form>
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" asp-controller="Account" asp-action="SaveAddress" method="post">
+            <div class="modal-header">
+                <h2 class="modal-title" id="addressModalTitle" data-fill-heading="เพิ่มที่อยู่ใหม่">เพิ่มที่อยู่ใหม่</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body lc-form-grid">
+                <input type="hidden" name="Id" value="0" />
+                <label class="lc-field"><span class="lc-label">ชื่อเรียก</span><input class="lc-input" name="Label" required maxlength="50" placeholder="บ้าน, ที่ทำงาน" list="addressLabels" /></label>
+                <datalist id="addressLabels"><option value="บ้าน"></option><option value="ที่ทำงาน"></option><option value="คอนโด"></option></datalist>
+                <label class="lc-field"><span class="lc-label">ชื่อผู้รับ</span><input class="lc-input" name="RecipientName" required maxlength="100" value="@user.Name" /></label>
+                <label class="lc-field"><span class="lc-label">เบอร์ผู้รับ</span><input class="lc-input" name="Phone" required pattern="0[0-9]{9}" value="@user.PhoneNumber" /></label>
+                <label class="lc-field lc-field--wide"><span class="lc-label">ที่อยู่</span><textarea class="lc-textarea" name="AddressLine" rows="3" required minlength="15" placeholder="บ้านเลขที่ หมู่ ซอย ถนน"></textarea></label>
+                <partial name="_AddressRegionFields" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="lc-btn lc-btn--ghost" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="submit" class="lc-btn lc-btn--primary">บันทึกที่อยู่</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<partial name="Sections/_ConfirmDialog" />
+
+@section Scripts {
+    <script type="module" src="~/js/app/backoffice.js" asp-append-version="true"></script>
+}

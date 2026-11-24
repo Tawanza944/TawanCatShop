@@ -1,0 +1,89 @@
+@* Cart drawer, wishlist drawer, checkout dialog and the sign-in prompt. Behaviour lives in wwwroot/js/app/*. *@
+
+<aside class="offcanvas offcanvas-end lc-drawer" tabindex="-1" id="cartDrawer" aria-labelledby="cartDrawerTitle">
+    <div class="lc-drawer__head">
+        <h2 id="cartDrawerTitle">ตะกร้าของคุณ</h2>
+        <button type="button" class="lc-btn lc-btn--ghost lc-btn--icon" data-bs-dismiss="offcanvas" aria-label="ปิด"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="lc-drawer__body">
+        <div class="lc-empty-state" data-cart-empty hidden>
+            <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sleeping)" />
+            <p class="lc-empty-state__title">ตะกร้ายังว่างอยู่</p>
+            <span>เลือกของให้น้องสักชิ้นไหม</span>
+            <a class="lc-btn lc-btn--primary lc-btn--sm" asp-controller="Home" asp-action="Product">ไปเลือกสินค้า</a>
+        </div>
+        <ul class="lc-cart-list" data-cart-list></ul>
+    </div>
+
+    <div class="lc-drawer__foot" data-cart-foot hidden>
+        <div class="lc-coupon-field">
+            <input class="lc-input" type="text" placeholder="ใส่โค้ดส่วนลด" aria-label="โค้ดส่วนลด" data-coupon-input />
+            <button type="button" class="lc-btn lc-btn--outline lc-btn--sm" data-coupon-apply>ใช้โค้ด</button>
+        </div>
+        <p class="lc-coupon-message" data-coupon-message hidden></p>
+        <partial name="_ReceiptSummary" />
+        <p class="lc-hint" data-cart-problems hidden></p>
+        <button type="button" class="lc-btn lc-btn--primary lc-drawer__cta" data-start-checkout>ไปชำระเงิน</button>
+    </div>
+</aside>
+
+<aside class="offcanvas offcanvas-end lc-drawer" tabindex="-1" id="wishlistDrawer" aria-labelledby="wishlistDrawerTitle">
+    <div class="lc-drawer__head">
+        <h2 id="wishlistDrawerTitle">รายการโปรด</h2>
+        <button type="button" class="lc-btn lc-btn--ghost lc-btn--icon" data-bs-dismiss="offcanvas" aria-label="ปิด"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    </div>
+    <div class="lc-drawer__body">
+        <div class="lc-empty-state" data-wishlist-empty hidden>
+            <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sitting)" />
+            <p class="lc-empty-state__title">ยังไม่มีของที่ถูกใจ</p>
+            <span>กดรูปหัวใจที่สินค้าเพื่อเก็บไว้ดูทีหลัง</span>
+        </div>
+        <ul class="lc-cart-list" data-wishlist-list></ul>
+    </div>
+</aside>
+
+<div class="modal fade" id="checkoutDialog" tabindex="-1" aria-labelledby="checkoutDialogTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content lc-checkout">
+            <div class="modal-header">
+                <h2 class="modal-title" id="checkoutDialogTitle">ชำระเงิน</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body">
+                <vc:checkout-form />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="orderPlacedDialog" tabindex="-1" aria-labelledby="orderPlacedTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content lc-order-placed">
+            <div class="modal-body">
+                <div class="lc-order-placed__art"><partial name="_CatIllustration" model="new CatIllustration(CatPose.Stretching)" /></div>
+                <h2 id="orderPlacedTitle">สั่งซื้อเรียบร้อย</h2>
+                <p>เลขที่คำสั่งซื้อ <strong data-placed-order-no></strong></p>
+                <p class="lc-hint">ยอดชำระ <strong data-placed-total></strong> · ฝ่ายบัญชีตรวจสลิปก่อนร้านเริ่มแพ็ก</p>
+                <div class="lc-order-placed__actions">
+                    <a class="lc-btn lc-btn--primary" data-placed-tracking asp-controller="Account" asp-action="Tracking">ติดตามพัสดุ</a>
+                    <button type="button" class="lc-btn lc-btn--outline" data-bs-dismiss="modal">ช้อปต่อ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="signInPrompt" tabindex="-1" aria-labelledby="signInPromptTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content lc-sign-in-prompt">
+            <div class="modal-body">
+                <div class="lc-sign-in-prompt__art"><partial name="_CatIllustration" model="new CatIllustration(CatPose.Peeking)" /></div>
+                <h2 id="signInPromptTitle">เข้าสู่ระบบก่อนนะ</h2>
+                <p data-sign-in-reason>เข้าสู่ระบบเพื่อทำรายการนี้</p>
+                <a class="lc-btn lc-btn--primary" data-sign-in-link asp-controller="Home" asp-action="Login">เข้าสู่ระบบ</a>
+                <a class="lc-link" asp-controller="Home" asp-action="Register">ยังไม่มีบัญชี? สมัครสมาชิก</a>
+            </div>
+        </div>
+    </div>
+</div>

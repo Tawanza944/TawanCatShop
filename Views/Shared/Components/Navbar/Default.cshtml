@@ -1,0 +1,70 @@
+@model WebApplication1.ViewComponents.NavbarViewModel
+
+<header class="lc-nav">
+    <div class="lc-container lc-nav__inner">
+        <a class="lc-wordmark lc-nav__brand" asp-controller="Home" asp-action="Index" aria-label="LoveCat หน้าแรก">L<span class="lc-wordmark__o">o</span>veCat</a>
+
+        <nav class="lc-nav__links" aria-label="เมนูหลัก">
+            <a asp-controller="Home" asp-action="Index" lc-active-when="Home/Index">หน้าแรก</a>
+            <a asp-controller="Home" asp-action="Product" lc-active-when="Home/Product,ProductDetail">สินค้า</a>
+            <a asp-controller="Home" asp-action="Promotion" lc-active-when="Home/Promotion">โปรโมชั่น</a>
+            <a asp-controller="Home" asp-action="Help" lc-active-when="Home/Help">ช่วยเหลือ</a>
+        </nav>
+
+        <form class="lc-nav__search" asp-controller="Home" asp-action="Product" method="get" role="search">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" name="search" placeholder="ค้นหา เช่น ทรายเต้าหู้" aria-label="ค้นหาสินค้า" value="@Context.Request.Query["search"]" />
+        </form>
+
+        <div class="lc-nav__tools">
+            @if (Model.ShowShoppingTools)
+            {
+                @if (Model.IsAuthenticated)
+                {
+                    <button type="button" class="lc-nav__icon" data-open-wishlist aria-label="รายการโปรด">
+                        <i class="bi bi-heart" aria-hidden="true"></i>
+                        <span class="lc-nav__count" data-wishlist-count hidden>0</span>
+                    </button>
+                }
+                <button type="button" class="lc-nav__icon" data-open-cart aria-label="ตะกร้าสินค้า">
+                    <i class="bi bi-bag" aria-hidden="true"></i>
+                    <span class="lc-nav__count" data-cart-count hidden>0</span>
+                </button>
+            }
+
+            @if (Model.IsAuthenticated && Model.Role is not null)
+            {
+                <div class="dropdown">
+                    <button class="lc-nav__account" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        @if (Model.AvatarUrl is not null)
+                        {
+                            <img class="lc-avatar" src="@Model.AvatarUrl" alt="" />
+                        }
+                        else
+                        {
+                            <span class="lc-avatar lc-avatar--initial" aria-hidden="true">@(Model.DisplayName?.Trim().FirstOrDefault())</span>
+                        }
+                        <span class="lc-nav__account-name">@Model.DisplayName</span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end lc-nav__menu">
+                        <li class="lc-nav__menu-head">@Model.DisplayName<span>@Model.Role.ThaiName</span></li>
+                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Index"><i class="bi @Model.Role.Icon" aria-hidden="true"></i>@Model.Role.WorkspaceTitle</a></li>
+                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="bi bi-person" aria-hidden="true"></i>บัญชีของฉัน</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <form asp-controller="Home" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>ออกจากระบบ</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <a class="lc-btn lc-btn--ghost lc-btn--sm lc-nav__login" asp-controller="Home" asp-action="Login">เข้าสู่ระบบ</a>
+                <a class="lc-btn lc-btn--secondary lc-btn--sm" asp-controller="Home" asp-action="Register">สมัครสมาชิก</a>
+            }
+        </div>
+    </div>
+</header>

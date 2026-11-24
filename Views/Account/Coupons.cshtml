@@ -1,0 +1,5 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+}
+<partial name="@($"~/Views/Account/Sections/{Model.PartialName}.cshtml")" model="Model.Model" />

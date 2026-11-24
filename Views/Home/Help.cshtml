@@ -1,0 +1,80 @@
+@using Microsoft.Extensions.Options
+@using WebApplication1.Options
+@inject IOptions<StoreInfoOptions> StoreOptions
+@inject IOptions<CommerceOptions> CommerceSettings
+@{
+    ViewData["Title"] = "ช่วยเหลือ";
+    var store = StoreOptions.Value;
+    var commerce = CommerceSettings.Value;
+}
+
+<div class="lc-container">
+    <header class="lc-page-head">
+        <h1>ช่วยเหลือ</h1>
+        <p>ทุกเรื่องที่ควรรู้ก่อนสั่งของให้น้อง ถ้ายังไม่เจอคำตอบ โทร @store.Phone (@store.OpeningHours)</p>
+    </header>
+
+    <div class="lc-help">
+        <nav class="lc-help__nav lc-sidenav" aria-label="หัวข้อช่วยเหลือ">
+            <a href="#order">วิธีสั่งซื้อ</a>
+            <a href="#payment">วิธีชำระเงิน</a>
+            <a href="#shipping">การจัดส่ง</a>
+            <a href="#faq">คำถามที่พบบ่อย</a>
+            <a href="#about">เกี่ยวกับเรา</a>
+            <a href="#privacy">ความเป็นส่วนตัว</a>
+        </nav>
+
+        <div>
+            <section id="order">
+                <h2><i class="bi bi-box-seam lc-site-icon" aria-hidden="true"></i>วิธีสั่งซื้อ</h2>
+                <ol>
+                    <li>เลือกสินค้า กดปุ่ม <strong>+</strong> หรือ "ใส่ตะกร้า" (ยังไม่ต้องเข้าสู่ระบบ)</li>
+                    <li>เปิดตะกร้ามุมขวาบน ปรับจำนวน และใส่โค้ดส่วนลดถ้ามี</li>
+                    <li>กด "ไปชำระเงิน" แล้วเข้าสู่ระบบ ของในตะกร้าจะยังอยู่ครบ</li>
+                    <li>กรอกที่อยู่ เลือกวิธีชำระเงิน แล้วกด "ยืนยันสั่งซื้อ"</li>
+                    <li>ติดตามสถานะได้ที่เมนู "คำสั่งซื้อของฉัน"</li>
+                </ol>
+            </section>
+
+            <section id="payment">
+                <h2><i class="bi bi-cash-stack lc-site-icon" aria-hidden="true"></i>วิธีชำระเงิน</h2>
+                <ul>
+                    <li><strong>พร้อมเพย์</strong> โอนยอดรวมและแนบสลิปเพื่อให้ฝ่ายบัญชีตรวจสอบ</li>
+                </ul>
+                <p class="lc-hint">ร้านยังไม่รับบัตรเครดิต</p>
+            </section>
+
+            <section id="shipping">
+                <h2><i class="bi bi-truck lc-site-icon" aria-hidden="true"></i>การจัดส่ง</h2>
+                <ul>
+                    <li>ไรเดอร์ของร้านส่งเองทุกออเดอร์</li>
+                    <li>ค่าส่ง ฿@commerce.ShippingFee.ToString("N0") และ <strong>ส่งฟรีเมื่อซื้อครบ ฿@commerce.FreeShippingThreshold.ToString("N0")</strong></li>
+                    <li>ขั้นตอน: รอร้านยืนยัน → กำลังแพ็กของ → พร้อมส่ง → กำลังจัดส่ง → ได้รับของแล้ว</li>
+                </ul>
+            </section>
+
+            <section id="faq">
+                <h2><i class="bi bi-question-circle lc-site-icon" aria-hidden="true"></i>คำถามที่พบบ่อย</h2>
+                <details><summary>ใช้โค้ดส่วนลดได้กี่ครั้ง</summary><p>โค้ดละ 1 ครั้งต่อบัญชี ถ้ายกเลิกออเดอร์ สิทธิ์จะคืนมาให้ใช้ใหม่ได้</p></details>
+                <details><summary>ทำไมราคาในตะกร้าเปลี่ยน</summary><p>ระบบคำนวณราคาจากร้านทุกครั้ง ถ้าร้านเปลี่ยนราคาหรือของใกล้หมด ตะกร้าจะแสดงราคาล่าสุดให้</p></details>
+                <details><summary>รีวิวสินค้าได้ตอนไหน</summary><p>หลังได้รับของแล้ว เข้าไปที่หน้าสินค้าหรือ "คำสั่งซื้อของฉัน" แล้วกดเขียนรีวิว</p></details>
+                <details><summary>เปลี่ยนที่อยู่จัดส่งได้ไหม</summary><p>บันทึกที่อยู่ได้หลายที่ในหน้า "บัญชีของฉัน" แล้วเลือกตอนชำระเงิน</p></details>
+            </section>
+
+            <section id="about">
+                <h2><i class="bi bi-house-door lc-site-icon" aria-hidden="true"></i>เกี่ยวกับเรา</h2>
+                <p>@store.Name @store.Tagline เลือกของที่คนในร้านใช้กับแมวและหมาที่บ้านจริง</p>
+                <p class="lc-hint">ร้านนี้เป็นโปรเจกต์วิชา CSI402 ข้อมูลร้านและการชำระเงินเป็นการจำลอง</p>
+            </section>
+
+            <section id="privacy">
+                <h2><i class="bi bi-shield-lock lc-site-icon" aria-hidden="true"></i>ความเป็นส่วนตัว</h2>
+                <ul>
+                    <li>เราใช้ชื่อ เบอร์ และที่อยู่ เพื่อจัดส่งสินค้าเท่านั้น</li>
+                    <li>รหัสผ่านถูกเก็บแบบเข้ารหัส ไม่มีใครเห็นรหัสจริง</li>
+                    <li>ตะกร้าและรายการโปรดเก็บไว้ในเบราว์เซอร์ของคุณ</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+</div>

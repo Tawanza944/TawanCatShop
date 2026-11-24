@@ -1,0 +1,52 @@
+@model IReadOnlyList<WebApplication1.Services.Backoffice.SellerReview>
+@{
+    ViewData["Title"] = "รีวิวสินค้า";
+}
+<div class="lc-container lc-chat-page">
+    <header class="lc-chat-head">
+        <a class="lc-btn lc-btn--ghost lc-btn--sm" asp-controller="Account" asp-action="Product"><i class="bi bi-arrow-left" aria-hidden="true"></i> สินค้าและสต็อก</a>
+        <div class="lc-chat-head__who">
+            <span class="lc-chat-head__avatar" aria-hidden="true"><i class="bi bi-star"></i></span>
+            <div>
+                <h1>รีวิวสินค้า</h1>
+                <small>@Model.Count รีวิว · ตอบกลับลูกค้าได้รีวิวละ 1 ข้อความ</small>
+            </div>
+        </div>
+    </header>
+
+    @if (Model.Count == 0)
+    {
+        <div class="lc-chat lc-chat__empty">
+            <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sitting)" />
+            <p>ร้านนี้ยังไม่มีรีวิว</p>
+        </div>
+    }
+    else
+    {
+        <div class="lc-review-list">
+            @foreach (var review in Model)
+            {
+                <article class="lc-review-card">
+                    <header>
+                        <h2>@review.Product</h2>
+                        <span class="lc-review-card__stars" aria-label="@review.Rating จาก 5 ดาว">
+                            @for (var i = 1; i <= 5; i++)
+                            {
+                                <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star")" aria-hidden="true"></i>
+                            }
+                        </span>
+                    </header>
+                    <p class="lc-review-card__comment">@(string.IsNullOrWhiteSpace(review.Comment) ? "ลูกค้าให้คะแนนโดยไม่เขียนความเห็น" : review.Comment)</p>
+                    <form class="lc-review-card__reply" asp-action="ReplyReview" method="post">
+                        <input type="hidden" name="id" value="@review.Id" />
+                        <label class="lc-field">
+                            <span class="lc-label">@(string.IsNullOrEmpty(review.Reply) ? "ตอบกลับลูกค้า" : "คำตอบของร้าน (แก้ไขได้)")</span>
+                            <textarea class="lc-textarea" name="message" rows="2" required maxlength="1000">@review.Reply</textarea>
+                        </label>
+                        <button class="lc-btn lc-btn--primary lc-btn--sm" type="submit">บันทึกคำตอบ</button>
+                    </form>
+                </article>
+            }
+        </div>
+    }
+</div>

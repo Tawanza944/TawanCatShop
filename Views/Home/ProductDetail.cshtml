@@ -1,0 +1,197 @@
+@model WebApplication1.ViewModels.Store.ProductDetailViewModel
+@{
+    var card = Model.Card;
+    ViewData["Title"] = card.Name;
+    var snapshot = System.Text.Json.JsonSerializer.Serialize(new { id = card.Id, name = card.Name, price = card.Price, image = card.ImageUrl, stock = card.Stock });
+    var totalReviews = Model.Reviews.Count;
+    var existing = Model.Eligibility.ExistingReview;
+}
+
+<div class="lc-container">
+    <nav class="lc-breadcrumb" aria-label="ตำแหน่งหน้า">
+        <a asp-controller="Home" asp-action="Index">หน้าแรก</a><span>/</span>
+        <a asp-controller="Home" asp-action="Product">สินค้า</a><span>/</span>
+        @if (card.Category is not null)
+        {
+            <a asp-controller="Home" asp-action="Product" asp-route-category="@card.Category.Key">@card.Category.Label</a><span>/</span>
+        }
+        <span>@card.Name</span>
+    </nav>
+
+    <section class="lc-detail" data-product="@snapshot" data-product-id="@card.Id">
+        <div class="lc-detail__media">
+            @if (!string.IsNullOrEmpty(card.ImageUrl))
+            {
+                <img src="@card.ImageUrl" alt="@card.Name" />
+            }
+            else
+            {
+                <div class="lc-product__placeholder"><partial name="_CatIllustration" model="new CatIllustration(CatPose.Sitting)" /></div>
+            }
+            @if (card.Badge != ProductBadge.None)
+            {
+                <span class="lc-stamp @(card.Badge == ProductBadge.Sale ? "lc-stamp--sale" : card.Badge == ProductBadge.New ? "lc-stamp--plain" : null)">@card.BadgeLabel</span>
+            }
+        </div>
+
+        <div class="lc-detail__info">
+            @if (card.Category is not null)
+            {
+                <a class="lc-product__category" asp-controller="Home" asp-action="Product" asp-route-category="@card.Category.Key">@card.Category.Label</a>
+            }
+            <partial name="_StorefrontSeller" model="card" />
+            <partial name="_FlashSaleLabel" model="card" />
+        <h1>@card.Name</h1>
+            <p class="lc-detail__meta">
+                @if (card.ReviewCount > 0)
+                {
+                    <a href="#reviews"><i class="bi bi-star-fill" aria-hidden="true"></i> @card.Rating.ToString("0.0") จาก @card.ReviewCount รีวิว</a>
+                }
+                else
+                {
+                    <span>ยังไม่มีรีวิว</span>
+                }
+                <span>ขายแล้ว @card.Sold ชิ้น</span>
+            </p>
+
+            <div class="lc-detail__price">
+                <span class="lc-price-tag lc-price-tag--lg @(card.OnSale ? "lc-price-tag--sale" : null)">
+                    <span class="lc-price-tag__now">฿@card.Price.ToString(card.FlashEndsAt.HasValue ? "N2" : "N0")</span>
+                    @if (card.OnSale)
+                    {
+                        <span class="lc-price-tag__was">฿@card.OriginalPrice!.Value.ToString("N0")</span>
+                    }
+                </span>
+            </div>
+
+            <p class="lc-detail__stock">
+                @if (!card.InStock)
+                {
+                    <span class="lc-status lc-status--danger">หมดชั่วคราว</span>
+                }
+                else if (card.Stock <= 10)
+                {
+                    <span class="lc-status lc-status--warning">เหลือ @card.Stock ชิ้น</span>
+                }
+                else
+                {
+                    <span class="lc-status lc-status--success">มีของพร้อมส่ง</span>
+                }
+            </p>
+
+            <div class="lc-detail__buy">
+                <div class="lc-qty-picker" data-qty-picker>
+                    <button type="button" data-qty-input-step="-1" aria-label="ลดจำนวน">−</button>
+                    <input type="number" value="1" min="1" max="@Math.Max(1, Math.Min(20, card.Stock))" aria-label="จำนวน" />
+                    <button type="button" data-qty-input-step="1" aria-label="เพิ่มจำนวน">+</button>
+                </div>
+                <button type="button" class="lc-btn lc-btn--secondary" data-add-to-cart @(card.InStock ? null : "disabled")><i class="bi bi-bag-plus" aria-hidden="true"></i>ใส่ตะกร้า</button>
+                <button type="button" class="lc-btn lc-btn--primary" data-buy-now @(card.InStock ? null : "disabled")>ซื้อเลย</button>
+                <button type="button" class="lc-btn lc-btn--ghost lc-btn--icon lc-product__heart" style="position:static" data-toggle-wishlist aria-pressed="false" aria-label="เก็บไว้ในรายการโปรด"><i class="bi bi-heart" aria-hidden="true"></i></button>
+            </div>
+
+            <div class="lc-detail__perks">
+                <div><i class="bi bi-truck lc-site-icon" aria-hidden="true"></i>ส่งฟรีเมื่อซื้อครบ ฿500</div>
+                <div><i class="bi bi-bicycle lc-site-icon" aria-hidden="true"></i>ไรเดอร์ร้านส่งเอง</div>
+                <div><i class="bi bi-box-seam lc-site-icon" aria-hidden="true"></i>คืนได้ใน 7 วัน</div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="lc-detail__description">
+                    <h2 class="h5">รายละเอียด</h2>
+                    <p>@Model.Description</p>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="lc-reviews" id="reviews" aria-labelledby="reviewsTitle">
+        <div class="lc-reviews__summary">
+            <h2 id="reviewsTitle">รีวิวจากคนซื้อจริง</h2>
+            @if (totalReviews > 0)
+            {
+                <div><span class="lc-reviews__score">@card.Rating.ToString("0.0")</span> <span class="lc-stars">@(new string('★', (int)Math.Round(card.Rating)))</span></div>
+                <span class="lc-hint">จาก @totalReviews รีวิว</span>
+                <div class="lc-reviews__bars">
+                    @for (var i = 0; i < 5; i++)
+                    {
+                        var count = Model.RatingBreakdown[i];
+                        <div class="lc-reviews__bar">
+                            <span>@(5 - i) ดาว</span>
+                            <span><i style="width:@(totalReviews == 0 ? 0 : count * 100 / totalReviews)%"></i></span>
+                            <span>@count</span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="lc-hint">ยังไม่มีรีวิว คนที่ได้รับของแล้วรีวิวได้</p>
+            }
+        </div>
+
+        <div style="display:grid;gap:16px;align-content:start">
+            @if (Model.Eligibility.CanReview)
+            {
+                <form class="lc-review-form" asp-controller="Reviews" asp-action="Save" method="post">
+                    <input type="hidden" name="productId" value="@card.Id" />
+                    <strong>@(existing is null ? "เขียนรีวิวของคุณ" : "แก้ไขรีวิวของคุณ")</strong>
+                    <div class="lc-star-input" role="radiogroup" aria-label="ให้คะแนน">
+                        @for (var star = 5; star >= 1; star--)
+                        {
+                            <input type="radio" id="star@(star)" name="rating" value="@star" checked="@((existing?.Rating ?? 5) == star)" />
+                            <label for="star@(star)" title="@star ดาว">★</label>
+                        }
+                    </div>
+                    <textarea class="lc-textarea" name="comment" maxlength="1000" placeholder="น้องชอบไหม ส่งไวไหม เล่าให้คนอื่นฟังหน่อย">@existing?.Comment</textarea>
+                    <button class="lc-btn lc-btn--primary lc-btn--sm" type="submit" style="justify-self:start">บันทึกรีวิว</button>
+                </form>
+            }
+            else if (Model.Eligibility.Reason is not null)
+            {
+                <p class="lc-hint"><i class="bi bi-info-circle" aria-hidden="true"></i> @Model.Eligibility.Reason</p>
+            }
+
+            @if (totalReviews > 0)
+            {
+                <ul class="lc-review-list">
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <li class="lc-review">
+                            <header>
+                                <span><strong>@review.ReviewerName</strong> @(review.IsMine ? "(คุณ)" : null)</span>
+                                <span class="lc-stars">@(new string('★', review.Rating))<span style="color:var(--lc-sand-300)">@(new string('★', 5 - review.Rating))</span></span>
+                            </header>
+                            @if (!string.IsNullOrWhiteSpace(review.Comment))
+                            {
+                                <p>@review.Comment</p>
+                            }
+                            @if (review.ShopReply is { } reply)
+                            {
+                                <div class="lc-review__seller-reply">
+                                    <strong>ตอบโดย @card.ShopName</strong>
+                                    <p>@reply</p>
+                                </div>
+                            }
+                            <small class="lc-hint">@review.CreatedAt.ToLocalTime().ToString("d MMM yyyy", new System.Globalization.CultureInfo("th-TH"))</small>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </section>
+
+    @if (Model.Related.Count > 0)
+    {
+        <section class="lc-home-section" aria-labelledby="relatedTitle">
+            <div class="lc-section-head"><h2 id="relatedTitle">ของในหมวดเดียวกัน</h2></div>
+            <div class="lc-product-grid">
+                @foreach (var product in Model.Related)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        </section>
+    }
+</div>

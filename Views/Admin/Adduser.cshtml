@@ -1,0 +1,53 @@
+@model WebApplication1.ViewModels.Backoffice.UserForm
+@using WebApplication1.ViewComponents
+@{
+    ViewData["Title"] = "เพิ่มผู้ใช้";
+    ViewData["LayoutVariant"] = LayoutVariant.Compact;
+    var roles = ViewBag.AvailableRoles as List<string> ?? [];
+}
+
+<div class="lc-container lc-admin-page">
+    <header class="lc-admin-page__head">
+        <div>
+            <p class="lc-eyebrow">หลังร้าน · ผู้ดูแล</p>
+            <h1>เพิ่มผู้ใช้ใหม่</h1>
+            <p>สร้างบัญชีให้พนักงานหรือลูกค้า แล้วเลือกบทบาทได้เลย</p>
+        </div>
+        <div class="lc-row-actions">
+            <a class="lc-btn lc-btn--outline" asp-controller="Admin" asp-action="userlist"><i class="bi bi-list-ul" aria-hidden="true"></i> รายชื่อผู้ใช้</a>
+            <a class="lc-btn lc-btn--ghost" asp-controller="Account" asp-action="Users">กลับหลังร้าน</a>
+        </div>
+    </header>
+
+    <div class="lc-admin-page__body">
+        <form class="lc-panel lc-form-grid" asp-controller="Admin" asp-action="Adduser" method="post">
+            <div asp-validation-summary="All" class="lc-field--wide lc-error"></div>
+            <label class="lc-field"><span class="lc-label">ชื่อ-นามสกุล</span><input class="lc-input" asp-for="Name" /><span class="lc-error" asp-validation-for="Name"></span></label>
+            <label class="lc-field"><span class="lc-label">ชื่อผู้ใช้</span><input class="lc-input" asp-for="Username" /><span class="lc-error" asp-validation-for="Username"></span></label>
+            <label class="lc-field"><span class="lc-label">อีเมล</span><input class="lc-input" asp-for="Email" type="email" /><span class="lc-error" asp-validation-for="Email"></span></label>
+            <label class="lc-field"><span class="lc-label">เบอร์โทร</span><input class="lc-input" asp-for="PhoneNumber" placeholder="0812345678" /><span class="lc-error" asp-validation-for="PhoneNumber"></span></label>
+            <label class="lc-field"><span class="lc-label">บทบาท</span>
+                <select class="lc-select" asp-for="Role">
+                    @foreach (var role in roles)
+                    {
+                        <option value="@role">@RoleProfiles.For(role).ThaiName (@role)</option>
+                    }
+                </select>
+            </label>
+            <label class="lc-field"><span class="lc-label">รหัสผ่านเริ่มต้น</span><input class="lc-input" asp-for="Password" type="password" autocomplete="new-password" /><span class="lc-error" asp-validation-for="Password"></span></label>
+            <div class="lc-field--wide"><button class="lc-btn lc-btn--primary" type="submit"><i class="bi bi-person-plus" aria-hidden="true"></i> สร้างบัญชี</button></div>
+        </form>
+
+        <aside class="lc-admin-page__aside">
+            <i class="bi bi-people lc-site-icon lc-site-icon--96" aria-hidden="true"></i>
+            <h2>บทบาททำอะไรได้บ้าง</h2>
+            <ul>
+                @foreach (var role in roles)
+                {
+                    var profile = RoleProfiles.For(role);
+                    <li><span class="lc-role lc-role--@role.ToLowerInvariant()"><i class="bi @profile.Icon" aria-hidden="true"></i> @profile.ThaiName</span> @profile.WorkspaceTitle</li>
+                }
+            </ul>
+        </aside>
+    </div>
+</div>

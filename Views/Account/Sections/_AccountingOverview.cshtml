@@ -1,0 +1,22 @@
+@model AccountingOverviewModel
+<article class="lc-panel">
+    <header class="lc-panel__head">
+        <h2>เงินเข้าจากออเดอร์ที่ส่งสำเร็จ 7 วัน</h2>
+    </header>
+    <partial name="Sections/_Chart" model="Model.Income" />
+</article>
+
+<article class="lc-panel">
+    <header class="lc-panel__head">
+        <h2>รายการล่าสุดเดือนนี้</h2>
+        <a class="lc-link" asp-controller="Account" asp-action="Ledger">เปิดสมุดบัญชี</a>
+    </header>
+    @if (Model.RecentLines.Count == 0)
+    {
+        <p class="lc-hint">เดือนนี้ยังไม่มีรายการ</p>
+    }
+    else
+    {
+        <partial name="Sections/_LedgerLines" model="(Model.RecentLines, false)" />
+    }
+</article>

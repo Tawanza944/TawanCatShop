@@ -1,0 +1,114 @@
+@model WebApplication1.ViewModels.Store.HomePageViewModel
+@{
+    ViewData["Title"] = "ร้านของใช้แมวและหมา";
+}
+
+<section class="lc-hero">
+    <div class="lc-container lc-hero__inner">
+        <div class="lc-hero__copy">
+            <span class="lc-hero__chip"><i class="bi bi-truck" aria-hidden="true"></i>ส่งฟรีเมื่อซื้อครบ ฿500</span>
+            <h1>ของกิน ของเล่น<br />ส่งถึงหน้าบ้าน<br /><span class="lc-hero__accent">น้องรอได้</span></h1>
+            <p>คัดของดีให้แมวและหมา จากร้านเล็กๆ ที่เลี้ยงเองจริง</p>
+            <div class="lc-hero__actions">
+                <a class="lc-btn lc-btn--primary" asp-controller="Home" asp-action="Product">เลือกซื้อเลย</a>
+                <a class="lc-btn lc-btn--outline" asp-controller="Home" asp-action="Promotion">ดูโค้ดส่วนลด</a>
+            </div>
+            <dl class="lc-hero__stats">
+                <div><dt>ส่งถึงมือแล้ว</dt><dd>@Model.Stats.DeliveredOrders.ToString("N0") ออเดอร์</dd></div>
+                <div><dt>สินค้าในร้าน</dt><dd>@Model.Stats.ProductCount.ToString("N0") รายการ</dd></div>
+                <div><dt>คะแนนรีวิว</dt><dd>@(Model.Stats.ReviewCount > 0 ? $"{Model.Stats.AverageRating:0.0} / 5" : "รอรีวิวแรก")</dd></div>
+            </dl>
+        </div>
+        <div class="lc-hero__mascot">
+            <partial name="_CatMascot" />
+        </div>
+    </div>
+</section>
+
+<div class="lc-container">
+    @if (Model.FlashSales.Count > 0)
+    {
+        <section class="lc-home-section" data-flash-section aria-labelledby="flashTitle">
+            <div class="lc-section-head"><h2 id="flashTitle"><i class="bi bi-lightning-charge" aria-hidden="true"></i> Flash Sale</h2></div>
+            <div class="lc-product-grid">
+                @foreach (var product in Model.FlashSales)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        </section>
+    }
+    <section class="lc-home-section" aria-labelledby="whoTitle">
+        <div class="lc-section-head">
+            <h2 id="whoTitle">ที่บ้านมีใคร</h2>
+            <span class="lc-hint">เลือกหมวดที่ตรงกับน้อง</span>
+        </div>
+        <div class="lc-chip-group lc-chip-group--icons">
+            @foreach (var item in Model.Categories)
+            {
+                <a class="lc-chip" asp-controller="Home" asp-action="Product" asp-route-category="@item.Category.Key">
+                    <i class="bi @(item.Category.Icon) lc-site-icon lc-chip__icon" aria-hidden="true"></i>
+                    <span>@item.Category.Label</span>
+                    <small>@item.Count รายการ</small>
+                </a>
+            }
+        </div>
+    </section>
+
+    @if (Model.BestSellers.Count > 0)
+    {
+        <section class="lc-home-section" aria-labelledby="bestTitle">
+            <div class="lc-section-head">
+                <h2 id="bestTitle">สินค้าขายดี</h2>
+                <a class="lc-link" asp-controller="Home" asp-action="Product" asp-route-sort="BestSelling">ดูทั้งหมด</a>
+            </div>
+            <div class="lc-product-grid">
+                @foreach (var product in Model.BestSellers)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        </section>
+    }
+
+    <section class="lc-promo-banner" aria-labelledby="promoTitle">
+        <i class="bi bi-gift lc-site-icon" aria-hidden="true"></i>
+        <div>
+            <h2 id="promoTitle">มีโค้ดส่วนลดรออยู่</h2>
+            <p>ลดสูงสุด 150 บาท หรือส่งฟรีไม่มีขั้นต่ำ เก็บโค้ดแล้วระบบใช้ให้ตอนชำระเงิน</p>
+        </div>
+        <a class="lc-btn lc-btn--primary" asp-controller="Home" asp-action="Promotion">เก็บโค้ด</a>
+    </section>
+
+    @if (Model.CatPicks.Count > 0)
+    {
+        <section class="lc-home-section" aria-labelledby="catTitle">
+            <div class="lc-section-head">
+                <h2 id="catTitle"><i class="bi bi-heart lc-site-icon lc-heading-icon" aria-hidden="true"></i>ของน้องแมว</h2>
+                <a class="lc-link" asp-controller="Home" asp-action="Product">ดูทั้งหมด</a>
+            </div>
+            <div class="lc-product-grid">
+                @foreach (var product in Model.CatPicks)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.DogPicks.Count > 0)
+    {
+        <section class="lc-home-section" aria-labelledby="dogTitle">
+            <div class="lc-section-head">
+                <h2 id="dogTitle"><i class="bi bi-heart lc-site-icon lc-heading-icon" aria-hidden="true"></i>ของน้องหมา</h2>
+                <a class="lc-link" asp-controller="Home" asp-action="Product" asp-route-category="dog">ดูทั้งหมด</a>
+            </div>
+            <div class="lc-product-grid">
+                @foreach (var product in Model.DogPicks)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        </section>
+    }
+</div>

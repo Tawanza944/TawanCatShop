@@ -1,0 +1,23 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (OwnerFinanceModel)Model.Model!;
+}
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+}
+<form class="lc-toolbar__filters lc-date-filter" asp-controller="Account" asp-action="Finance" method="get">
+    <label class="lc-field lc-field--inline"><span class="lc-label">ตั้งแต่</span>
+        <input class="lc-input" type="date" name="from" value="@PagerModel.Iso(content.From)" max="@PagerModel.Iso(content.Today)" /></label>
+    <label class="lc-field lc-field--inline"><span class="lc-label">ถึง</span>
+        <input class="lc-input" type="date" name="to" value="@PagerModel.Iso(content.To)" max="@PagerModel.Iso(content.Today)" /></label>
+    <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">ดูช่วงนี้</button>
+    <span class="lc-hint">@content.From.ToString("d MMM yyyy", thai) – @content.To.ToString("d MMM yyyy", thai) · ส่งถึงลูกค้า @content.DeliveredOrders ออเดอร์</span>
+</form>
+
+<div class="lc-ledger-sum">
+    <div><span>ยอดเงินรับรวม</span><strong>฿@content.Total.ToString("N2")</strong></div>
+    <div><span>รายได้ค่าคอมรวม</span><strong class="lc-in">฿@content.Commission.ToString("N2")</strong></div>
+    <div><span>ยอดโอนให้ร้านแล้ว</span><strong>฿@content.Transferred.ToString("N2")</strong></div>
+    <div><span>ยอดหักคอมแล้วที่ยังไม่โอน</span><strong>฿@content.AwaitingTransfer.ToString("N2")</strong></div>
+</div>

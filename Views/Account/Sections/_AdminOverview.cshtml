@@ -1,0 +1,40 @@
+@model AdminOverviewModel
+<div class="lc-desk-grid">
+    <article class="lc-panel">
+        <header class="lc-panel__head">
+            <h2>ผู้ใช้แต่ละบทบาท</h2>
+            <a class="lc-link" asp-controller="Account" asp-action="Users">ดูทั้งหมด</a>
+        </header>
+        <partial name="Sections/_Chart" model="Model.UsersByRole" />
+    </article>
+
+    <article class="lc-panel">
+        <header class="lc-panel__head">
+            <h2>สมาชิกล่าสุด</h2>
+        </header>
+        <ul class="lc-people">
+            @foreach (var user in Model.LatestUsers)
+            {
+                <li>
+                    <span class="lc-people__initial" aria-hidden="true">@user.Name[..1]</span>
+                    <div>
+                        <strong>@user.Name</strong>
+                        <small>@@@user.Username · @RoleProfiles.For(user.Role).ThaiName</small>
+                    </div>
+                    @if (user.Suspended)
+                    {
+                        <span class="lc-status lc-status--danger">ระงับ</span>
+                    }
+                </li>
+            }
+        </ul>
+    </article>
+</div>
+
+<article class="lc-panel">
+    <header class="lc-panel__head">
+        <h2>ทำอะไรไปบ้าง</h2>
+        <a class="lc-link" asp-controller="Account" asp-action="Activity">ประวัติทั้งหมด</a>
+    </header>
+    <partial name="Sections/_ActivityList" model="Model.LatestActivity" />
+</article>

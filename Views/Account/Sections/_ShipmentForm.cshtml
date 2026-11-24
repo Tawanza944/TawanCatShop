@@ -1,0 +1,34 @@
+@using WebApplication1.Models
+@using WebApplication1.Domain.Shipping
+@model Order
+@* Parcel order (outside the rider area): the shop picks the carrier and types the tracking number.
+   The order becomes "กำลังจัดส่ง" only after this is saved, and it cannot be edited afterwards,
+   so the confirm dialog (backoffice.js, data-confirm-shipment) repeats the values before sending. *@
+<form class="lc-ship-form" asp-controller="Shipments" asp-action="Dispatch" method="post"
+      data-confirm="ยืนยันส่งพัสดุ?" data-confirm-shipment>
+    <input type="hidden" name="orderNo" value="@Model.OrderNo" />
+    <p class="lc-ship-form__title"><i class="bi bi-truck" aria-hidden="true"></i> ส่งพัสดุ (ต่างจังหวัด)</p>
+    <div class="lc-ship-form__fields">
+        <label class="lc-field">
+            <span class="lc-label">บริษัทขนส่ง</span>
+            <select class="lc-select" name="carrier" required data-carrier-select>
+                <option value="">เลือกขนส่ง</option>
+                @foreach (var carrier in Carriers.All)
+                {
+                    <option value="@carrier.ToCode()">@carrier.ToThai()</option>
+                }
+            </select>
+        </label>
+        <label class="lc-field" data-other-carrier hidden>
+            <span class="lc-label">ชื่อบริษัทขนส่ง</span>
+            <input class="lc-input" name="otherCarrierName" maxlength="@ShipmentDetails.CarrierNameMaxLength" placeholder="เช่น Nim Express" />
+        </label>
+        <label class="lc-field">
+            <span class="lc-label">เลขพัสดุ</span>
+            <input class="lc-input lc-input--code" name="trackingNumber" required maxlength="40" autocomplete="off" spellcheck="false"
+                   placeholder="เช่น TH1234567890" />
+        </label>
+    </div>
+    <small class="lc-hint">ตัวอักษรอังกฤษหรือตัวเลข @ShipmentDetails.TrackingMinLength–@ShipmentDetails.TrackingMaxLength ตัว เว้นวรรคหรือขีดได้ · ยืนยันแล้วแก้ไขไม่ได้</small>
+    <button class="lc-btn lc-btn--primary lc-btn--sm" type="submit"><i class="bi bi-send-check" aria-hidden="true"></i> ยืนยันส่งพัสดุ</button>
+</form>

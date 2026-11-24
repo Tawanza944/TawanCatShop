@@ -1,0 +1,28 @@
+@model WebApplication1.ViewModels.Shared.ShipmentInfo
+@using WebApplication1.ViewModels.Shared
+@* Parcel shipment on the customer's order card: carrier, tracking number with a copy button, and when it left the shop. *@
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+}
+<div class="lc-order__block lc-shipment">
+    <small class="lc-order__label"><i class="bi bi-truck" aria-hidden="true"></i> การจัดส่งพัสดุ</small>
+    @if (Model.Display == ShipmentDisplay.Tracked)
+    {
+        <p><strong>@Model.CarrierName</strong>
+            @if (Model.ShippedAt is { } shippedAt)
+            {
+                <span class="lc-hint">· ร้านส่งเมื่อ @shippedAt.ToLocalTime().ToString("d MMM yyyy · HH:mm น.", thai)</span>
+            }
+        </p>
+        <div class="lc-shipment__tracking">
+            <span class="lc-mono" aria-label="เลขพัสดุ">@Model.TrackingNumber</span>
+            <button type="button" class="lc-btn lc-btn--outline lc-btn--sm" data-copy-text="@Model.TrackingNumber" aria-label="คัดลอกเลขพัสดุ @Model.TrackingNumber">
+                <i class="bi bi-copy" aria-hidden="true"></i> <span data-copy-label>คัดลอก</span>
+            </button>
+        </div>
+    }
+    else
+    {
+        <p class="lc-hint">ส่งก่อนมีระบบเลขพัสดุ สอบถามเลขพัสดุได้ที่ร้าน</p>
+    }
+</div>

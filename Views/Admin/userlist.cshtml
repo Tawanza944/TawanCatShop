@@ -1,0 +1,58 @@
+@model List<WebApplication1.Models.User>
+@using WebApplication1.ViewComponents
+@{
+    ViewData["Title"] = "รายชื่อผู้ใช้";
+    ViewData["LayoutVariant"] = LayoutVariant.Compact;
+    var roles = ViewBag.AvailableRoles as List<string> ?? [];
+    var thai = new System.Globalization.CultureInfo("th-TH");
+}
+
+<div class="lc-container lc-admin-page">
+    <header class="lc-admin-page__head">
+        <div>
+            <p class="lc-eyebrow">หลังร้าน · ผู้ดูแล</p>
+            <h1>รายชื่อผู้ใช้ทั้งหมด</h1>
+            <p>@Model.Count บัญชี · เปลี่ยนบทบาทได้จากช่องในตาราง</p>
+        </div>
+        <div class="lc-row-actions">
+            <a class="lc-btn lc-btn--primary" asp-controller="Admin" asp-action="Adduser"><i class="bi bi-person-plus" aria-hidden="true"></i> เพิ่มผู้ใช้</a>
+            <a class="lc-btn lc-btn--ghost" asp-controller="Account" asp-action="Users">กลับหลังร้าน</a>
+        </div>
+    </header>
+
+    <div class="lc-panel">
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead><tr><th>#</th><th>ผู้ใช้</th><th>อีเมล</th><th>สมัครเมื่อ</th><th>บทบาท</th></tr></thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td class="lc-mono">@user.Id</td>
+                            <td>
+                                <div class="lc-person">
+                                    <span class="lc-people__initial" aria-hidden="true">@user.Name[..1]</span>
+                                    <div><strong>@user.Name</strong><br /><small>@@@user.Username</small></div>
+                                </div>
+                            </td>
+                            <td><small>@user.Email</small></td>
+                            <td><small>@(user.CreatedAt?.ToLocalTime().ToString("d MMM yyyy", thai) ?? "—")</small></td>
+                            <td>
+                                <form class="lc-role-form" asp-controller="Admin" asp-action="UpdateRole" method="post">
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <select class="lc-select" name="role" aria-label="บทบาทของ @user.Username">
+                                        @foreach (var role in roles)
+                                        {
+                                            <option value="@role" selected="@(role == user.Role)">@RoleProfiles.For(role).ThaiName</option>
+                                        }
+                                    </select>
+                                    <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">บันทึก</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

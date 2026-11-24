@@ -1,0 +1,77 @@
+@model WebApplication1.ViewModels.Shared.CatIllustration
+@using WebApplication1.ViewModels.Shared
+@{
+    var viewBox = Model.Pose switch
+    {
+        CatPose.Sleeping => "0 0 240 150",
+        CatPose.Sitting => "0 0 160 200",
+        CatPose.Stretching => "0 0 260 140",
+        CatPose.Peeking => "0 0 200 110",
+        _ => "0 0 200 150"
+    };
+    var cssClass = string.IsNullOrWhiteSpace(Model.CssClass) ? "lc-cat" : $"lc-cat {Model.CssClass}";
+}
+<svg class="@cssClass" viewBox="@viewBox" xmlns="http://www.w3.org/2000/svg"
+     role="@(Model.IsDecorative ? null : "img")" aria-hidden="@(Model.IsDecorative ? "true" : null)" focusable="false">
+    @if (!Model.IsDecorative)
+    {
+        <title>@Model.Title</title>
+    }
+    <g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        @switch (Model.Pose)
+        {
+            case CatPose.Sleeping:
+                <path d="M24 128 Q120 112 216 128 Q220 142 204 143 H36 Q20 142 24 128" />
+                <path d="M58 121 Q52 84 94 73 Q128 65 158 77 Q186 89 186 119" />
+                <path d="M158 77 Q163 58 175 51 L179 36 L188 50 Q200 49 207 58 L217 51 L215 68 Q221 84 205 94 Q189 100 176 93" />
+                <path d="M190 72 q3.5 3 7 0" />
+                <path d="M203 70 q3 2.5 6 0" />
+                <path d="M64 120 Q34 118 40 98 Q46 85 61 93" />
+                <path d="M148 118 q10 -7 21 0" />
+                break;
+
+            case CatPose.Sitting:
+                <path d="M52 72 L45 33 L70 52 Q80 48 90 52 L115 33 L108 72" />
+                <path d="M52 72 Q49 99 80 102 Q111 99 108 72" />
+                <path d="M77 85 l3 3 l3 -3" />
+                <path d="M80 88 q-3 5 -8 3" />
+                <path d="M80 88 q3 5 8 3" />
+                <path d="M63 101 Q40 132 44 176 Q46 189 60 189 H100 Q114 189 116 176 Q120 132 97 101" />
+                <path d="M71 150 V187" />
+                <path d="M89 150 V187" />
+                <path d="M116 177 Q151 173 147 141 Q145 125 132 127" />
+                <circle cx="68" cy="76" r="2.6" fill="currentColor" stroke="none" />
+                <circle cx="92" cy="76" r="2.6" fill="currentColor" stroke="none" />
+                break;
+
+            case CatPose.Stretching:
+                <path d="M10 129 H250" stroke-dasharray="5 6" />
+                <path d="M66 112 Q80 116 116 110" />
+                <path d="M60 120 Q40 124 30 127 H62 Q90 122 118 116" />
+                <path d="M68 108 Q58 90 68 78 L63 56 L82 70 Q91 67 100 70 L118 56 L114 78 Q124 92 116 110" />
+                <path d="M80 90 q3 2.5 6 0" />
+                <path d="M98 90 q3 2.5 6 0" />
+                <path d="M88 99 l2.5 2.5 l2.5 -2.5" />
+                <path d="M113 80 Q150 58 194 58 Q216 58 216 80" />
+                <path d="M118 116 Q156 102 196 98" />
+                <path d="M208 74 Q213 104 208 127 H198" />
+                <path d="M194 96 Q198 112 192 127 H182" />
+                <path d="M216 70 Q242 52 236 28 Q233 20 225 22" />
+                break;
+
+            case CatPose.Peeking:
+                <path d="M8 96 H192" />
+                <path d="M62 96 Q58 61 74 51 L70 22 L92 40 Q100 37 108 40 L130 22 L126 51 Q142 61 138 96" />
+                <path d="M97 80 l3 3 l3 -3" />
+                <path d="M78 81 H58" />
+                <path d="M78 87 L60 92" />
+                <path d="M122 81 H142" />
+                <path d="M122 87 L140 92" />
+                <path d="M65 96 q7 -11 15 0" />
+                <path d="M120 96 q7 -11 15 0" />
+                <circle cx="88" cy="70" r="3" fill="currentColor" stroke="none" />
+                <circle cx="112" cy="70" r="3" fill="currentColor" stroke="none" />
+                break;
+        }
+    </g>
+</svg>

@@ -1,0 +1,61 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (RaiderHistoryModel)Model.Model!;
+}
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+}
+<div class="lc-tiles lc-tiles--two">
+    <div class="lc-tile">
+        <i class="bi bi-truck lc-site-icon lc-tile__icon lc-site-icon--52" aria-hidden="true"></i>
+        <span class="lc-tile__label">@(content.From is null && content.To is null ? "ส่งสำเร็จทั้งหมด" : "ส่งสำเร็จในช่วงนี้")</span>
+        <strong class="lc-tile__value">@content.Orders.Total.ToString("N0") งาน</strong>
+    </div>
+    <div class="lc-tile">
+        <i class="bi bi-cash-stack lc-site-icon lc-tile__icon lc-site-icon--52" aria-hidden="true"></i>
+        <span class="lc-tile__label">@(content.From is null && content.To is null ? "รายได้สะสม" : "รายได้ในช่วงนี้")</span>
+        <strong class="lc-tile__value">฿@content.TotalEarned.ToString("N0")</strong>
+        <span class="lc-tile__note">งานละ ฿@content.FeePerJob.ToString("N0")</span>
+    </div>
+</div>
+
+<article class="lc-panel">
+    <form class="lc-toolbar__filters lc-date-filter" asp-controller="Account" asp-action="History" method="get">
+        <label class="lc-field lc-field--inline"><span class="lc-label">ตั้งแต่</span>
+            <input class="lc-input" type="date" name="from" value="@PagerModel.Iso(content.From)" max="@PagerModel.Iso(content.Today)" /></label>
+        <label class="lc-field lc-field--inline"><span class="lc-label">ถึง</span>
+            <input class="lc-input" type="date" name="to" value="@PagerModel.Iso(content.To)" max="@PagerModel.Iso(content.Today)" /></label>
+        <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">ดูช่วงนี้</button>
+        @if (content.From is not null || content.To is not null)
+        {
+            <a class="lc-link" asp-controller="Account" asp-action="History">ดูทั้งหมด</a>
+        }
+    </form>
+
+    @if (content.Orders.Items.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@(content.From is null && content.To is null ? "ยังไม่มีงานที่ส่งสำเร็จ" : "ช่วงนี้ไม่มีงานที่ส่งสำเร็จ")" />
+    }
+    else
+    {
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead><tr><th>ออเดอร์</th><th>ลูกค้า</th><th>รับของ</th><th>ส่งถึง</th><th class="lc-num">ค่าส่ง</th></tr></thead>
+                <tbody>
+                    @foreach (var o in content.Orders.Items)
+                    {
+                        <tr>
+                            <td class="lc-mono">@o.OrderNo</td>
+                            <td>@o.CustomerName<br /><small class="lc-hint">@o.ShippingAddress</small></td>
+                            <td>@(o.PickedUpAt?.ToLocalTime().ToString("d MMM HH:mm", thai) ?? "—")</td>
+                            <td>@(o.DeliveredAt?.ToLocalTime().ToString("d MMM HH:mm", thai) ?? "—")</td>
+                            <td class="lc-num"><strong>+฿@content.FeePerJob.ToString("N0")</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="Sections/_Pager" model='PagerModel.From(content.Orders, "history") with { FromDate = content.From, ToDate = content.To }' />
+    }
+</article>

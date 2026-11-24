@@ -1,0 +1,107 @@
+/* Printable A6 shipping label (Views/Orders/Label.cshtml). Black on white so any printer works. */
+@page { size: 100mm 150mm; margin: 0; }
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: #f3eee4;
+    font: 14px/1.45 "Anuphan", sans-serif;
+    color: #111;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: #2b2118;
+    color: #fff6dc;
+    font-size: 13px;
+}
+
+.toolbar button {
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: #ffd54f;
+    color: #2b2118;
+    font: 600 14px "Anuphan", sans-serif;
+    cursor: pointer;
+}
+
+.label {
+    width: 100mm;
+    min-height: 150mm;
+    margin: 24px auto;
+    padding: 6mm;
+    background: #fff;
+    border: 2px solid #111;
+    display: flex;
+    flex-direction: column;
+    gap: 3mm;
+}
+
+.label small {
+    display: block;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #555;
+}
+
+.label p { margin: 0; }
+
+.label__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 3mm;
+    border-bottom: 2px solid #111;
+}
+
+.label__brand { font: 500 24px "Mitr", sans-serif; }
+
+.label__no { text-align: right; }
+.label__no strong { font: 600 15px ui-monospace, monospace; }
+
+.label__to {
+    padding: 3mm;
+    border: 2px solid #111;
+    border-radius: 3mm;
+}
+
+.label__name { font: 500 20px "Mitr", sans-serif; }
+.label__phone { font-weight: 600; }
+.label__address { font-size: 15px; }
+
+.label__from { font-size: 12px; }
+
+.label__meta {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    border: 1px solid #111;
+}
+
+.label__meta div { padding: 2mm; border-left: 1px solid #111; }
+.label__meta div:first-child { border-left: 0; }
+.label__meta strong { font-size: 14px; }
+.label__meta .is-cod { background: #111; color: #fff; }
+.label__meta .is-cod small { color: #ddd; }
+
+.label__items ol { margin: 1mm 0 0; padding-left: 5mm; font-size: 12px; }
+.label__items li { display: flex; justify-content: space-between; gap: 3mm; }
+
+.label__foot {
+    margin-top: auto;
+    padding-top: 2mm;
+    border-top: 1px dashed #111;
+    font-size: 11px;
+    text-align: center;
+}
+
+@media print {
+    body { background: #fff; }
+    .toolbar { display: none; }
+    .label { margin: 0; border: 0; }
+}

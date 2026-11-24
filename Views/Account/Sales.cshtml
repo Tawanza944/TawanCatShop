@@ -1,0 +1,52 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (OwnerSalesModel)Model.Model!;
+}
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    var ranges = new[] { 7, 30, 90 };
+}
+<nav class="lc-chip-row" aria-label="ช่วงเวลา">
+    @foreach (var days in ranges)
+    {
+        <a class="lc-pill" asp-controller="Account" asp-action="Sales" asp-route-filter="@days"
+           aria-current="@(days == content.RangeDays ? "page" : null)">@days วัน</a>
+    }
+</nav>
+
+<article class="lc-panel">
+    <partial name="Sections/_Chart" model="content.Revenue" />
+</article>
+
+<article class="lc-panel">
+    <header class="lc-panel__head">
+        <h2>สรุปรายวัน</h2>
+        <span class="lc-hint">รวม ฿@content.Days.Sum(d => d.Revenue).ToString("N0") · @content.Days.Sum(d => d.Orders) ออเดอร์</span>
+    </header>
+    @if (content.Days.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@("ช่วงนี้ยังไม่มียอดขาย")" />
+    }
+    else
+    {
+        var best = content.Days.Max(d => d.Revenue);
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead><tr><th>วันที่</th><th class="lc-num">ออเดอร์</th><th class="lc-num">ยอดขาย</th><th class="lc-num">เฉลี่ย/ออเดอร์</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var d in content.Days)
+                    {
+                        <tr>
+                            <td>@d.Day.ToString("ddd d MMM yyyy", thai)</td>
+                            <td class="lc-num">@d.Orders</td>
+                            <td class="lc-num"><strong>฿@d.Revenue.ToString("N0")</strong></td>
+                            <td class="lc-num">฿@((d.Orders == 0 ? 0 : d.Revenue / d.Orders).ToString("N0"))</td>
+                            <td class="lc-bar-cell"><span class="lc-bar" style="--w:@((best == 0 ? 0 : d.Revenue / best * 100).ToString("0", System.Globalization.CultureInfo.InvariantCulture))%"></span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</article>

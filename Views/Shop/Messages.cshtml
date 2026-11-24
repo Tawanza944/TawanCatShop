@@ -1,0 +1,39 @@
+@model IReadOnlyList<int>
+@{
+    ViewData["Title"] = "ข้อความจากลูกค้า";
+}
+<div class="lc-container lc-chat-page">
+    <header class="lc-chat-head">
+        <a class="lc-btn lc-btn--ghost lc-btn--sm" asp-controller="Account" asp-action="Product"><i class="bi bi-arrow-left" aria-hidden="true"></i> สินค้าและสต็อก</a>
+        <div class="lc-chat-head__who">
+            <span class="lc-chat-head__avatar" aria-hidden="true"><i class="bi bi-chat-dots"></i></span>
+            <div>
+                <h1>ข้อความจากลูกค้า</h1>
+                <small>@Model.Count บทสนทนา</small>
+            </div>
+        </div>
+    </header>
+
+    @if (Model.Count == 0)
+    {
+        <div class="lc-chat lc-chat__empty">
+            <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sleeping)" />
+            <p>ยังไม่มีลูกค้าทักมา</p>
+        </div>
+    }
+    else
+    {
+        <ul class="lc-inbox">
+            @foreach (var customer in Model)
+            {
+                <li>
+                    <a asp-controller="ShopContact" asp-action="Conversation" asp-route-id="@customer">
+                        <span class="lc-chat-head__avatar" aria-hidden="true"><i class="bi bi-person"></i></span>
+                        <span class="lc-inbox__name">ลูกค้า #@customer</span>
+                        <span class="lc-inbox__go">เปิดบทสนทนา <i class="bi bi-chevron-right" aria-hidden="true"></i></span>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</div>

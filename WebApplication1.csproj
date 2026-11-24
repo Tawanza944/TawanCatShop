@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot/data/thailand-addresses.json" LogicalName="ThailandAddresses.json" />
+    <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- App_Data holds uploaded product photos and avatars: user data, not source. Keep it out of the build,
+         publish output and dotnet watch (Program.cs serves it at /uploads). -->
+    <Content Remove="App_Data\**" />
+    <None Remove="App_Data\**" />
+    <Watch Remove="App_Data\**" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,3 @@
+Source: GeoThai v2026.10.23, https://github.com/GeoThai/data/tree/v2026.10.23
+© 2026 Pongsakorn Thipayanate, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/
+Adapted from json/tree.json by retaining Thai names, geography codes and postal codes.

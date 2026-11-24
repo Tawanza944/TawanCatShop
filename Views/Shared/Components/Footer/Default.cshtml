@@ -1,0 +1,93 @@
+@model WebApplication1.ViewComponents.FooterViewModel
+
+<footer class="lc-footer">
+    <div class="lc-footer__cat" aria-hidden="true">
+        <partial name="_CatIllustration" model="new CatIllustration(CatPose.Peeking)" />
+    </div>
+
+    <div class="lc-container lc-footer__grid">
+        <section class="lc-footer__about">
+            <a class="lc-wordmark lc-wordmark--lg" asp-controller="Home" asp-action="Index">L<span class="lc-wordmark__o">o</span>veCat</a>
+            <p>@Model.Store.Tagline</p>
+            <ul class="lc-footer__social" aria-label="ติดตามเรา">
+                @foreach (var social in Model.Store.Socials)
+                {
+                    <li>
+                        @if (!string.IsNullOrWhiteSpace(social.Url))
+                        {
+                            <a href="@social.Url" rel="noopener" target="_blank"><i class="bi @social.Icon" aria-hidden="true"></i>@social.Handle</a>
+                        }
+                        else
+                        {
+                            <span title="@social.Platform"><i class="bi @social.Icon" aria-hidden="true"></i>@social.Handle</span>
+                        }
+                    </li>
+                }
+            </ul>
+        </section>
+
+        <nav aria-label="หมวดสินค้า">
+            <h2>หมวดสินค้า</h2>
+            <ul>
+                @foreach (var category in Model.Categories)
+                {
+                    <li><a asp-controller="Home" asp-action="Product" asp-route-category="@category.Key">@category.Label</a></li>
+                }
+            </ul>
+        </nav>
+
+        <nav aria-label="ศูนย์ช่วยเหลือ">
+            <h2>ศูนย์ช่วยเหลือ</h2>
+            <ul>
+                <li><a asp-controller="Home" asp-action="Help" asp-fragment="order">วิธีสั่งซื้อ</a></li>
+                <li><a asp-controller="Home" asp-action="Help" asp-fragment="payment">วิธีชำระเงิน</a></li>
+                <li><a asp-controller="Home" asp-action="Help" asp-fragment="shipping">การจัดส่ง</a></li>
+                <li><a asp-controller="Home" asp-action="Help" asp-fragment="faq">คำถามที่พบบ่อย</a></li>
+            </ul>
+        </nav>
+
+        <nav aria-label="เกี่ยวกับร้าน">
+            <h2>เกี่ยวกับ LoveCat</h2>
+            <ul>
+                <li><a asp-controller="Home" asp-action="Help" asp-fragment="about">เกี่ยวกับเรา</a></li>
+                <li><a asp-controller="Home" asp-action="Promotion">โปรโมชั่น</a></li>
+                <li><a asp-controller="Home" asp-action="Product">สินค้าทั้งหมด</a></li>
+                <li><a asp-controller="Home" asp-action="Help" asp-fragment="privacy">นโยบายความเป็นส่วนตัว</a></li>
+            </ul>
+        </nav>
+
+        <section aria-label="ติดต่อเรา">
+            <h2>ติดต่อเรา</h2>
+            <address>
+                <span><i class="bi bi-geo-alt" aria-hidden="true"></i>@Model.Store.Address</span>
+                <span><i class="bi bi-telephone" aria-hidden="true"></i>@Model.Store.Phone</span>
+                <span><i class="bi bi-envelope" aria-hidden="true"></i>@Model.Store.Email</span>
+                <span><i class="bi bi-clock" aria-hidden="true"></i>@Model.Store.OpeningHours</span>
+            </address>
+        </section>
+    </div>
+
+    <div class="lc-container lc-footer__services">
+        <div>
+            <h2>ชำระเงินได้ด้วย</h2>
+            <ul class="lc-footer__chips">
+                @foreach (var method in Model.PaymentMethods)
+                {
+                    <li><i class="bi @(method == PaymentMethod.PromptPay ? "bi-qr-code" : "bi-cash-coin")" aria-hidden="true"></i>@method.ToThai()</li>
+                }
+            </ul>
+        </div>
+        <div>
+            <h2>จัดส่งโดย</h2>
+            <ul class="lc-footer__chips">
+                <li><i class="bi bi-bicycle" aria-hidden="true"></i>ไรเดอร์ LoveCat</li>
+                <li><i class="bi bi-truck" aria-hidden="true"></i>ส่งฟรีเมื่อซื้อครบ ฿@Model.FreeShippingThreshold.ToString("N0")</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="lc-container lc-footer__bottom">
+        <span>@Model.Store.Credit</span>
+        <span>ร้านในโปรเจกต์วิชา CSI402 · ข้อมูลร้านเป็นข้อมูลสมมติ</span>
+    </div>
+</footer>

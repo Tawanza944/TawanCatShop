@@ -1,0 +1,262 @@
+@model DashboardPage
+@using WebApplication1.Models
+@using System.Text.Json
+@using WebApplication1.Domain.Orders
+@using WebApplication1.Domain.Accounting
+@{
+    Layout = "_DashboardLayout";
+    var content = (AccountingOrderStatusModel)Model.Model!;
+    string DeliveryLabel(OrderStatus status) => status == OrderStatus.Delivered ? "ส่งถึงแล้ว" : status.ToThai();
+    var financeOptions = new (PayoutFilter Filter, string Label, int Count)[]
+    {
+        (PayoutFilter.All, "ทั้งหมด", content.Summary.Total),
+        (PayoutFilter.Unpaid, "ยังไม่โอน", content.Summary.Unpaid),
+        (PayoutFilter.AwaitingApproval, "รออนุมัติ", content.Summary.AwaitingApproval),
+        (PayoutFilter.Transferred, "โอนแล้ว", content.Summary.Transferred)
+    };
+}
+
+@if (content.PendingPayments.Count > 0)
+{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    <article class="lc-panel">
+        <header class="lc-panel__head">
+            <h2>ยอดชำระที่ยังไม่ยืนยัน</h2>
+            <span class="lc-hint">@content.PendingPayments.Count รายการ · เปิดสลิปตรวจยอดก่อนกดยืนยัน</span>
+        </header>
+        <div class="lc-slip-list">
+            @foreach (var payment in content.PendingPayments)
+            {
+                var pending = payment.Status == PaymentReview.Pending;
+                <section class="lc-slip-card @(pending ? null : "is-waiting")">
+                    <header class="lc-slip-card__head">
+                        <div>
+                            <strong>@payment.Username</strong>
+                            <small>โอนเมื่อ @payment.CreatedAt.ToLocalTime().ToString("d MMM yyyy · HH:mm น.", thai)</small>
+                        </div>
+                        <div class="lc-slip-card__amount">
+                            <small>ยอดที่ต้องได้รับ</small>
+                            <strong>฿@payment.Total.ToString("N2")</strong>
+                        </div>
+                    </header>
+
+                    <div class="lc-slip-card__main">
+                        <a class="lc-btn lc-btn--outline" asp-controller="Payments" asp-action="BasketSlip" asp-route-id="@payment.Id" target="_blank" rel="noopener">
+                            <i class="bi bi-image" aria-hidden="true"></i> เปิดสลิป
+                        </a>
+                        @if (pending)
+                        {
+                            <form asp-controller="Payments" asp-action="Review" method="post">
+                                <input type="hidden" name="id" value="@payment.Id" />
+                                <input type="hidden" name="slipId" value="@payment.SlipId" />
+                                <input type="hidden" name="approved" value="true" />
+                                <button class="lc-btn lc-btn--primary" type="submit"><i class="bi bi-check2-circle" aria-hidden="true"></i> ยืนยันการชำระเงิน</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="lc-status lc-status--warning">รอลูกค้าส่งสลิปใหม่</span>
+                        }
+                    </div>
+
+                    @* The two "problem" actions are kept apart from the main button and each says why it is used. *@
+                    <div class="lc-slip-card__problems">
+                        @if (pending)
+                        {
+                            <form class="lc-slip-action" asp-controller="Payments" asp-action="Review" method="post">
+                                <input type="hidden" name="id" value="@payment.Id" />
+                                <input type="hidden" name="slipId" value="@payment.SlipId" />
+                                <input type="hidden" name="approved" value="false" />
+                                <label class="lc-field">
+                                    <span class="lc-label"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> สลิปไม่ชัดหรือยอดไม่ตรง</span>
+                                    <input class="lc-input" name="reason" maxlength="300" required placeholder="เหตุผลที่ขอสลิปใหม่ เช่น ยอดโอนไม่ครบ" />
+                                </label>
+                                <button class="lc-btn lc-btn--secondary lc-btn--sm" type="submit">ขอสลิปใหม่</button>
+                            </form>
+                        }
+                        <form class="lc-slip-action lc-slip-action--danger" asp-controller="Payments" asp-action="Cancel" method="post"
+                              data-confirm="ยืนยันว่าตรวจแล้วไม่มียอดเงินเข้า และต้องการยกเลิกทุกออเดอร์ในยอดชำระนี้หรือไม่">
+                            <input type="hidden" name="id" value="@payment.Id" />
+                            <label class="lc-field">
+                                <span class="lc-label"><i class="bi bi-x-circle" aria-hidden="true"></i> ไม่มีเงินเข้า</span>
+                                <input class="lc-input" name="reason" maxlength="300" required placeholder="เหตุผลที่ยกเลิก เช่น ตรวจแล้วไม่พบยอดโอน" />
+                            </label>
+                            <button class="lc-btn lc-btn--danger lc-btn--sm" type="submit">ยกเลิกออเดอร์ในยอดนี้</button>
+                        </form>
+                    </div>
+                </section>
+            }
+        </div>
+    </article>
+}
+
+<form class="lc-toolbar__filters" asp-controller="Account" asp-action="OrderStatus" method="get">
+    <label class="lc-field"><span class="lc-label">เลขออเดอร์</span>
+        <input class="lc-input" name="search" value="@content.Search" placeholder="เช่น CAT-1042" />
+    </label>
+    <label class="lc-field"><span class="lc-label">สถานะจัดส่ง</span>
+        <select class="lc-input" name="filter">
+            <option value="">ทั้งหมด</option>
+            @foreach (var status in Enum.GetValues<OrderStatus>())
+            {
+                <option value="@status.ToCode()" selected="@(status.ToCode() == content.Filter)">@DeliveryLabel(status)</option>
+            }
+        </select>
+    </label>
+    <label class="lc-field"><span class="lc-label">สถานะการเงิน</span>
+        <select class="lc-input" name="payout">
+            @foreach (var option in financeOptions)
+            {
+                <option value="@option.Filter" selected="@(option.Filter == content.Payout)">@option.Label (@option.Count.ToString("N0"))</option>
+            }
+        </select>
+    </label>
+    <button class="lc-btn lc-btn--outline" type="submit">ค้นหา</button>
+</form>
+
+<dl class="lc-payout-summary">
+    <div><dt>ยอดที่ต้องโอน</dt><dd>฿@content.Summary.ReadyAmount.ToString("N2")</dd><small>พร้อมโอน @content.Summary.Ready.ToString("N0") ออเดอร์</small></div>
+    <div><dt>รออนุมัติ</dt><dd>@content.Summary.AwaitingApproval.ToString("N0") ออเดอร์</dd></div>
+</dl>
+
+<article class="lc-panel">
+    @if (content.Orders.Items.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@("ไม่พบออเดอร์ที่ตรงกับการค้นหา")" />
+    }
+    else
+    {
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead><tr><th>เลขออเดอร์</th><th>ร้านค้า</th><th>สถานะจัดส่ง</th><th class="lc-num">ยอดสินค้า</th><th class="lc-num">ค่าคอม</th><th class="lc-num">ยอดสุทธิร้าน</th><th>สถานะการเงิน</th><th>ดำเนินการ</th></tr></thead>
+                <tbody>
+                    @foreach (var row in content.Orders.Items)
+                    {
+                        var commission = row.Commission ?? PayoutRules.Commission(row.Total, content.CommissionRate);
+                        var net = row.Net ?? row.Total - commission;
+                        <tr>
+                            <td class="lc-mono">@row.Number</td>
+                            <td>@(row.ShopName ?? "LoveCat")</td>
+                            <td>
+                                @DeliveryLabel(row.Delivery)
+                                @if (row.RiderDelivery is bool riderDelivery)
+                                {
+                                    <small class="d-block lc-hint">@(riderDelivery ? "ไรเดอร์" : "ส่งพัสดุ")</small>
+                                }
+                                @if (row.ShipmentInfo is { Display: ShipmentDisplay.Tracked } tracked)
+                                {
+                                    <small class="d-block lc-shipment-cell">@tracked.CarrierName · <span class="lc-mono">@tracked.TrackingNumber</span></small>
+                                }
+                                else if (row.ShipmentInfo is { Display: ShipmentDisplay.LegacyWithoutTracking })
+                                {
+                                    <small class="d-block lc-hint">ส่งก่อนมีระบบเลขพัสดุ</small>
+                                }
+                                @if (row.PaymentStatus is PaymentReview.Pending or PaymentReview.Rejected)
+                                {
+                                    <small class="d-block lc-hint">@(row.PaymentStatus == PaymentReview.Pending ? "รอตรวจสลิป" : "รอส่งสลิปใหม่")</small>
+                                }
+                                else if (row.PaymentStatus == PaymentReview.Cancelled)
+                                {
+                                    <small class="d-block lc-hint">ยกเลิกการชำระเงินแล้ว</small>
+                                }
+                            </td>
+                            <td class="lc-num">
+                                ฿@row.Total.ToString("N2")
+                                @if (row.CustomerGoodsPaid is decimal paid)
+                                {
+                                    <small class="d-block lc-hint">ลูกค้าจ่ายค่าสินค้า ฿@paid.ToString("N2")</small>
+                                    @if (row.FlashDiscount is > 0) { <small class="d-block lc-hint">Flash Sale −฿@row.FlashDiscount.Value.ToString("N2")</small> }
+                                    @if (row.CouponDiscount is > 0) { <small class="d-block lc-hint">คูปอง −฿@row.CouponDiscount.Value.ToString("N2")</small> }
+                                    @if (row.RewardUsed is > 0) { <small class="d-block lc-hint">เงินสะสม −฿@row.RewardUsed.Value.ToString("N2")</small> }
+                                }
+                            </td>
+                            <td class="lc-num">@(row.Delivery == OrderStatus.Delivered ? $"฿{commission:N2}" : "—")</td>
+                            <td class="lc-num">@(row.Delivery == OrderStatus.Delivered ? $"฿{net:N2}" : "—")</td>
+                            <td><span class="lc-status @(row.Transferred ? "lc-status--success" : "lc-status--warning")">@row.FinanceStatus</span></td>
+                            <td>
+                                @if (row.CanApprove)
+                                {
+                                    <form asp-controller="Accounting" asp-action="ApproveAfterCommission" method="post"
+                                          asp-route-search="@content.Search" asp-route-filter="@content.Filter" asp-route-payout="@content.Payout" asp-route-pageNumber="@content.Orders.Page"
+                                          data-confirm="ออเดอร์ @row.Number: ยอดสินค้า ฿@row.Total.ToString("N2") − ค่าคอม ฿@commission.ToString("N2") = ยอดโอนให้ร้าน ฿@net.ToString("N2")">
+                                        <input type="hidden" name="orderId" value="@row.Id" />
+                                        <button class="lc-btn lc-btn--primary lc-btn--sm" type="submit">อนุมัติยอดหลังหักคอม</button>
+                                    </form>
+                                }
+                                else if (row.Transferred)
+                                {
+                                    <button class="lc-btn lc-btn--outline lc-btn--sm" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#transferDetails-@row.Id">ดูรายละเอียดการโอน</button>
+                                }
+                                else if (row.CanRecordTransfer)
+                                {
+                                    var fill = JsonSerializer.Serialize(new { orderId = row.Id, number = row.Number, amount = $"฿{net:N2}" });
+                                    <button class="lc-btn lc-btn--outline lc-btn--sm" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#orderTransferModal" data-fill="@fill">บันทึกการโอน</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="Sections/_Pager" model='(PagerModel.From(content.Orders, "order-status", content.Search, content.Filter) with { Payout = content.Payout })' />
+    }
+</article>
+
+<div class="modal fade" id="orderTransferModal" tabindex="-1" aria-labelledby="orderTransferTitle" aria-hidden="true" data-fill-form>
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" asp-controller="Accounting" asp-action="RecordTransfer" method="post" enctype="multipart/form-data"
+              asp-route-fromOrderStatus="true" asp-route-search="@content.Search" asp-route-filter="@content.Filter" asp-route-payout="@content.Payout"
+              asp-route-pageNumber="@content.Orders.Page">
+            <div class="modal-header">
+                <h2 class="modal-title" id="orderTransferTitle">บันทึกการโอน</h2>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body">
+                <p>ออเดอร์ <strong data-fill-text="number"></strong> ยอดโอน <strong data-fill-text="amount"></strong></p>
+                <p class="lc-hint">กรอกข้อมูลหลังโอนผ่านธนาคารแล้ว</p>
+                <input type="hidden" name="orderId" />
+                <label class="lc-field"><span class="lc-label">วันที่โอน</span>
+                    <input class="lc-input" name="transferDate" type="date" max="@PagerModel.Iso(content.Today)" required />
+                </label>
+                <label class="lc-field"><span class="lc-label">เลขอ้างอิงธนาคาร</span>
+                    <input class="lc-input" name="transferReference" maxlength="@PayoutRules.MaxReferenceLength" required />
+                </label>
+                <label class="lc-field"><span class="lc-label">สลิปโอนให้ร้าน (JPG หรือ PNG ไม่เกิน 10 MB)</span><input class="lc-input" name="slip" type="file" accept="image/jpeg,image/png" data-payout-slip-max="@WebApplication1.Services.Orders.SlipImage.PayoutMaxBytes" required /></label>
+            </div>
+            <div class="modal-footer">
+                <button class="lc-btn lc-btn--ghost" type="button" data-bs-dismiss="modal">ยกเลิก</button>
+                <button class="lc-btn lc-btn--primary" type="submit">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@foreach (var row in content.Orders.Items.Where(row => row.Transferred))
+{
+    <div class="modal fade" id="transferDetails-@row.Id" tabindex="-1"
+         aria-labelledby="transferDetailsTitle-@row.Id" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="transferDetailsTitle-@row.Id">รายละเอียดการโอน</h2>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="ปิด"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">เลขออเดอร์</dt>
+                        <dd class="col-sm-7 lc-mono">@row.Number</dd>
+                        <dt class="col-sm-5">วันที่โอน</dt>
+                        <dd class="col-sm-7">@row.TransferDate?.ToString("d MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("th-TH"))</dd>
+                        <dt class="col-sm-5">ยอดสุทธิที่โอน</dt>
+                        <dd class="col-sm-7">@(row.Net is decimal net ? $"฿{net:N2}" : "—")</dd>
+                        <dt class="col-sm-5">เลขอ้างอิงธนาคาร</dt>
+                        <dd class="col-sm-7 text-break">@(string.IsNullOrWhiteSpace(row.TransferReference) ? "—" : row.TransferReference)</dd>
+                    </dl>
+                    @if (row.HasPayoutSlip) { <a asp-controller="Payments" asp-action="PayoutSlip" asp-route-id="@row.Id" target="_blank" rel="noopener">เปิดสลิปโอน</a> }
+                </div>
+            </div>
+        </div>
+    </div>
+}

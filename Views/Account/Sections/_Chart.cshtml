@@ -1,0 +1,6 @@
+@model ChartData
+@* Chart.js reads the JSON in data-chart (wwwroot/js/app/charts.js). The table is the accessible fallback. *@
+<div class="lc-chart">
+    <canvas data-chart="@System.Text.Json.JsonSerializer.Serialize(new { kind = Model.Kind, labels = Model.Labels, values = Model.Values, label = Model.SeriesLabel, format = Model.Format })"
+            role="img" aria-label="กราฟ @Model.SeriesLabel"></canvas>
+</div>

@@ -1,0 +1,9 @@
+@model WebApplication1.ViewModels.Store.ProductCard
+
+@if (Model.ShopId is int shopId && !string.IsNullOrWhiteSpace(Model.ShopName))
+{
+    <a class="lc-product__seller" asp-controller="Home" asp-action="Shop" asp-route-id="@shopId">
+        <i class="bi bi-shop" aria-hidden="true"></i>
+        <span>ขายโดย @Model.ShopName</span>
+    </a>
+}

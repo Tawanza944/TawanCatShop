@@ -1,0 +1,75 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (ShopShippedModel)Model.Model!;
+}
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    var statuses = new[] { OrderStatus.Delivering, OrderStatus.Delivered };
+    var all = content.Counts.Values.Sum();
+}
+<div class="lc-toolbar lc-toolbar--bare">
+    <nav class="lc-chip-row" aria-label="กรองตามสถานะ">
+        <a class="lc-pill" asp-controller="Account" asp-action="Shipped" asp-route-search="@content.Search"
+           aria-current="@(string.IsNullOrEmpty(content.StatusFilter) ? "page" : null)">ทั้งหมด <b>@all</b></a>
+        @foreach (var status in statuses)
+        {
+            <a class="lc-pill" asp-controller="Account" asp-action="Shipped" asp-route-filter="@status.ToCode()" asp-route-search="@content.Search"
+               aria-current="@(content.StatusFilter == status.ToCode() ? "page" : null)">@status.ToThai() <b>@content.Counts.GetValueOrDefault(status)</b></a>
+        }
+    </nav>
+    <form class="lc-toolbar__filters" asp-controller="Account" asp-action="Shipped" method="get">
+        <input type="hidden" name="filter" value="@content.StatusFilter" />
+        <label class="lc-search">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" name="search" value="@content.Search" placeholder="เลขออเดอร์ ชื่อ หรือเบอร์ลูกค้า" aria-label="ค้นหาออเดอร์" />
+        </label>
+        <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">ค้นหา</button>
+    </form>
+</div>
+
+<article class="lc-panel">
+    @if (content.Orders.Items.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@(string.IsNullOrEmpty(content.Search) ? "ยังไม่มีออเดอร์ที่ส่งออกจากร้าน" : "ไม่พบออเดอร์ที่ตรงกับคำค้น")" />
+    }
+    else
+    {
+        <div class="lc-table-wrap">
+            <table class="lc-table lc-shipped">
+                <thead>
+                    <tr><th>ออเดอร์</th><th>ส่งถึง</th><th>สินค้า</th><th>ไรเดอร์</th><th>เวลา</th><th class="lc-num">ยอด</th><th>สถานะ</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in content.Orders.Items)
+                    {
+                        var rider = order.RiderId is int riderId ? content.RiderNames.GetValueOrDefault(riderId) : null;
+                        <tr>
+                            <td>
+                                <span class="lc-mono">@order.OrderNo</span>
+                                <br /><small class="lc-hint">สั่ง @order.CreatedAt.ToLocalTime().ToString("d MMM HH:mm", thai)</small>
+                            </td>
+                            <td><strong>@order.CustomerName</strong> · @order.CustomerPhone<br /><small class="lc-hint">@order.ShippingAddress</small></td>
+                            <td>
+                                <details class="lc-shipped__items">
+                                    <summary>@order.Items.Sum(i => i.Quantity) ชิ้น</summary>
+                                    <partial name="Sections/_OrderItems" model="order.Items" />
+                                </details>
+                            </td>
+                            <td>@(rider ?? "—")</td>
+                            <td>
+                                <small>
+                                    รับของ @(order.PickedUpAt?.ToLocalTime().ToString("d MMM HH:mm", thai) ?? "—")
+                                    <br />ส่งถึง @(order.DeliveredAt?.ToLocalTime().ToString("d MMM HH:mm", thai) ?? "—")
+                                </small>
+                            </td>
+                            <td class="lc-num"><strong>฿@order.TotalAmount.ToString("N0")</strong><br /><small class="lc-hint">@order.PaymentMethod</small></td>
+                            <td><span class="@StatusTone.CssClass(order.Status)">@order.StatusThai</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="Sections/_Pager" model='PagerModel.From(content.Orders, "shipped", content.Search, content.StatusFilter)' />
+    }
+</article>

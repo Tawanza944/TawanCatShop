@@ -1,0 +1,51 @@
+@using WebApplication1.ViewComponents
+@using WebApplication1.Services.Identity
+@inject ICurrentUserService CurrentUser
+@{
+    var variant = LayoutVariantResolver.From(ViewData);
+    var title = ViewData["Title"] as string;
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(string.IsNullOrWhiteSpace(title) ? "LoveCat · ร้านของใช้แมว" : $"{title} · LoveCat")</title>
+    <partial name="_HeadAssets" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="lc-body @(variant == LayoutVariant.Compact ? "lc-body--compact" : null)">
+    <a class="lc-skip" href="#main">ข้ามไปเนื้อหา</a>
+
+    <vc:navbar compact="@(variant == LayoutVariant.Compact)" />
+
+    <main id="main" class="lc-main">
+        <partial name="_FlashMessages" />
+        @RenderBody()
+    </main>
+
+    <vc:footer compact="@(variant == LayoutVariant.Compact)" />
+
+    @if (variant == LayoutVariant.Full)
+    {
+        <partial name="_ShopDrawers" />
+    }
+
+    <div id="lc-app" hidden
+         data-authenticated="@(CurrentUser.IsAuthenticated ? "true" : "false")"
+         data-user-id="@CurrentUser.UserId"
+         data-shopper="@(CurrentUser.IsAuthenticated ? RoleProfiles.For(CurrentUser.Role).Shops.ToString().ToLowerInvariant() : "true")"
+         data-quote-url="@Url.Action("Quote", "Checkout")"
+         data-place-order-url="@Url.Action("PlaceOrder", "Checkout")"
+         data-login-url="@Url.Action("Login", "Home", new { returnUrl = Context.Request.Path + Context.Request.QueryString })"
+         data-product-url="@Url.Action("ProductDetail", "Home", new { id = "__id__" })">
+        @Html.AntiForgeryToken()
+    </div>
+    <div class="lc-toasts" aria-live="polite" aria-atomic="true" data-toasts></div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="~/js/app/main.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

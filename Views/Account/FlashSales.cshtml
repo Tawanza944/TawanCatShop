@@ -1,0 +1,42 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (WebApplication1.Services.Backoffice.FlashAdminPage)Model.Model!;
+    var draft = TempData["FlashSaleDraft"] is string saved
+        ? System.Text.Json.JsonSerializer.Deserialize<WebApplication1.Services.Backoffice.FlashSaleDraft>(saved)
+        : null;
+}
+<section class="lc-panel">
+    <h2>สร้าง Flash Sale</h2>
+    <form class="lc-toolbar__filters" asp-controller="Admin" asp-action="SaveFlashSale" method="post">
+        <label class="lc-field">สินค้า
+            <select class="lc-input" name="productId" required>
+                <option value="">เลือกสินค้า</option>
+                @foreach (var group in content.Products.GroupBy(p => p.Shop))
+                {
+                    <optgroup label="@group.Key">
+                        @foreach (var product in group)
+                        {
+                            <option value="@product.Id" selected="@(draft?.ProductId == product.Id.ToString())">@product.Name · ราคาปกติ ฿@product.Price.ToString("N2")</option>
+                        }
+                    </optgroup>
+                }
+            </select>
+        </label>
+        <label class="lc-field">ราคาพิเศษ (บาท)<input class="lc-input" type="number" name="price" value="@draft?.Price" min="0.01" step="0.01" required /></label>
+        <label class="lc-field">เริ่ม (เวลาไทย)<input class="lc-input" type="datetime-local" name="startsAt" value="@draft?.StartsAt" required /></label>
+        <label class="lc-field">สิ้นสุด (เวลาไทย)<input class="lc-input" type="datetime-local" name="endsAt" value="@draft?.EndsAt" required /></label>
+        <label class="lc-field">โควตา (ชิ้น)<input class="lc-input" type="number" name="quota" value="@draft?.Quota" min="1" required /></label>
+        <button class="lc-btn lc-btn--primary" type="submit">สร้างรายการ</button>
+    </form>
+</section>
+<section class="lc-panel">
+    <h2>รายการ Flash Sale</h2>
+    @if (content.Sales.Count == 0) { <p>ยังไม่มีรายการ Flash Sale</p> }
+    @foreach (var sale in content.Sales)
+    {
+        var status = sale.EndsAt <= content.Now ? "สิ้นสุด" : sale.Sold >= sale.Quota ? "โควตาหมด" : sale.StartsAt > content.Now ? "รอเริ่ม" : "กำลังขาย";
+        <p><strong>@sale.Product · @sale.Shop</strong> ฿@sale.Price.ToString("N2") · @status · ใช้โควตา @sale.Sold / @sale.Quota ·
+            @sale.StartsAt.AddHours(7).ToString("dd/MM HH:mm") – @sale.EndsAt.AddHours(7).ToString("dd/MM HH:mm")</p>
+    }
+</section>

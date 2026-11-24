@@ -1,0 +1,110 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (AccountingCommissionModel)Model.Model!;
+}
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+}
+@if (content.Rows.Count == 0)
+{
+    <partial name="Sections/_Empty" model="@("หักค่าคอมครบทุกออเดอร์แล้ว")" />
+}
+else
+{
+    <div class="lc-commission-sum">
+        <div>
+            <span>รอหักคอม</span>
+            <strong>@content.Rows.Count รายการ</strong>
+        </div>
+        <div>
+            <span>ยอดสินค้ารวม</span>
+            <strong>฿@content.Rows.Sum(r => r.Total).ToString("N2")</strong>
+        </div>
+        <div class="is-highlight">
+            <span>ค่าคอม @content.CommissionRate.ToString("P0") ที่จะได้</span>
+            <strong>฿@content.Rows.Sum(r => r.Commission).ToString("N2")</strong>
+        </div>
+        <form asp-controller="Accounting" asp-action="DeductCommission" method="post"
+              data-confirm="หักค่าคอมทั้ง @content.Rows.Count รายการ ก่อนอนุมัติยอดให้ร้าน?">
+            <button class="lc-btn lc-btn--primary" type="submit"><i class="bi bi-check2-all" aria-hidden="true"></i> หักทั้งหมด</button>
+        </form>
+    </div>
+
+    <article class="lc-panel">
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead><tr><th>ออเดอร์</th><th>ลูกค้า</th><th>ส่งถึงเมื่อ</th><th class="lc-num">ยอดสินค้า</th><th class="lc-num">ค่าคอม</th><th class="lc-num">ยอดสุทธิร้าน</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var row in content.Rows)
+                    {
+                        <tr>
+                            <td class="lc-mono">@row.OrderNo</td>
+                            <td>@row.CustomerName</td>
+                            <td>@row.DeliveredAt.ToLocalTime().ToString("d MMM HH:mm", thai)</td>
+                            <td class="lc-num">฿@row.Total.ToString("N2")</td>
+                            <td class="lc-num lc-in">฿@row.Commission.ToString("N2")</td>
+                            <td class="lc-num">฿@row.ShopNet.ToString("N2")</td>
+                            <td class="lc-num">
+                                <form asp-controller="Accounting" asp-action="DeductCommission" method="post">
+                                    <input type="hidden" name="orderId" value="@row.OrderId" />
+                                    <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">หักคอม</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </article>
+}
+
+<article class="lc-panel">
+    <header class="lc-panel__head"><h2>อนุมัติและบันทึกการโอนให้ร้านค้า</h2></header>
+    @if (content.Payouts.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@("ไม่มีออเดอร์รออนุมัติหรือรอโอน")" />
+    }
+    else
+    {
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead><tr><th>ออเดอร์</th><th class="lc-num">ยอดสุทธิ</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+                <tbody>
+                    @foreach (var row in content.Payouts)
+                    {
+                        <tr>
+                            <td class="lc-mono">@row.OrderNo</td>
+                            <td class="lc-num">฿@row.NetAmount.ToString("N2")</td>
+                            <td>@(row.Approved ? "อนุมัติแล้ว รอโอน" : "รออนุมัติ")</td>
+                            <td>
+                                @if (row.Approved)
+                                {
+                                    <form asp-controller="Accounting" asp-action="RecordTransfer" method="post" enctype="multipart/form-data">
+                                        <input type="hidden" name="orderId" value="@row.OrderId" />
+                                        <label>วันที่โอน
+                                            <input class="lc-input" type="date" name="transferDate" max="@PagerModel.Iso(content.Today)" required />
+                                        </label>
+                                        <label>เลขอ้างอิงธนาคาร
+                                            <input class="lc-input" name="transferReference" maxlength="100" required />
+                                        </label>
+                                        <label>สลิปโอนให้ร้าน (JPG หรือ PNG ไม่เกิน 10 MB) <input name="slip" type="file" accept="image/jpeg,image/png" data-payout-slip-max="@WebApplication1.Services.Orders.SlipImage.PayoutMaxBytes" required /></label>
+                                        <button class="lc-btn lc-btn--primary lc-btn--sm" type="submit">โอนเงินให้ร้านค้า</button>
+                                        <small>กดหลังโอนผ่านธนาคารแล้วเพื่อบันทึกรายการ</small>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Accounting" asp-action="ApprovePayout" method="post">
+                                        <input type="hidden" name="orderId" value="@row.OrderId" />
+                                        <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">อนุมัติเงินให้ร้านค้า</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</article>

@@ -1,0 +1,57 @@
+@model ShopOverviewModel
+<div class="lc-desk-grid lc-desk-grid--wide-left">
+    <article class="lc-panel">
+        <header class="lc-panel__head">
+            <h2>ยอดขาย 7 วัน</h2>
+            <a class="lc-link" asp-controller="Account" asp-action="Revenue">ดูรายได้</a>
+        </header>
+        <partial name="Sections/_Chart" model="Model.Revenue" />
+    </article>
+
+    <article class="lc-panel">
+        <header class="lc-panel__head">
+            <h2>ของใกล้หมด</h2>
+            <a class="lc-link" asp-controller="Account" asp-action="Product">เติมสต็อก</a>
+        </header>
+        @if (Model.LowStock.Count == 0)
+        {
+            <p class="lc-hint">สต็อกยังเหลือเยอะทุกชิ้น</p>
+        }
+        else
+        {
+            <ul class="lc-stock-list">
+                @foreach (var p in Model.LowStock)
+                {
+                    <li>
+                        @if (!string.IsNullOrEmpty(p.ImageUrl))
+                        {
+                            <img src="@p.ImageUrl" alt="" loading="lazy" />
+                        }
+                        <span>@p.Name</span>
+                        <b class="@(p.Stock == 0 ? "is-out" : null)">@(p.Stock == 0 ? "หมด" : $"เหลือ {p.Stock}")</b>
+                    </li>
+                }
+            </ul>
+        }
+    </article>
+</div>
+
+<article class="lc-panel">
+    <header class="lc-panel__head">
+        <h2>ออเดอร์ที่ต้องแพ็กก่อน</h2>
+        <a class="lc-link" asp-controller="Account" asp-action="Packing">ดูทั้งหมด</a>
+    </header>
+    @if (Model.Queue.Count == 0)
+    {
+        <p class="lc-hint">ไม่มีออเดอร์รอแพ็ก</p>
+    }
+    else
+    {
+        <div class="lc-pack-list">
+            @foreach (var order in Model.Queue)
+            {
+                <partial name="Sections/_PackCard" model="order" />
+            }
+        </div>
+    }
+</article>

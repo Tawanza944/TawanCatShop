@@ -1,0 +1,86 @@
+@using WebApplication1.Models
+@model Order
+@* One order in the shop's packing queue. The buttons are plain forms; OrderWorkflow on the server decides what is allowed. *@
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+}
+<article class="lc-pack @("lc-pack--" + Model.Status.ToCode())">
+    <header class="lc-pack__head">
+        <div>
+            <strong class="lc-pack__no">@Model.OrderNo</strong>
+            <small>@Model.CreatedAt.ToLocalTime().ToString("d MMM · HH:mm น.", thai)</small>
+        </div>
+        <span class="@StatusTone.CssClass(Model.Status)">@Model.StatusThai</span>
+        @if (Model.Marketplace is { } delivery) { <small>@(delivery.RiderDelivery ? "ไรเดอร์" : "ส่งพัสดุ")</small> }
+    </header>
+
+    <div class="lc-pack__body">
+        <partial name="Sections/_OrderItems" model="Model.Items" />
+        <dl class="lc-pack__ship">
+            <dt>ส่งถึง</dt>
+            <dd><strong>@Model.CustomerName</strong> · @Model.CustomerPhone<br />@Model.ShippingAddress</dd>
+            <dt>ชำระ</dt>
+            <dd>@Model.PaymentMethod · <strong>฿@Model.TotalAmount.ToString("N0")</strong>
+                @if (!string.IsNullOrEmpty(Model.CouponCode))
+                {
+                    <span class="lc-tag">@Model.CouponCode</span>
+                }
+            </dd>
+        </dl>
+    </div>
+
+    <footer class="lc-pack__actions">
+        @if (Model.Marketplace?.Payment is { Status: not PaymentReview.Confirmed })
+        {
+            <span class="lc-hint">รอฝ่ายบัญชียืนยันสลิป</span>
+        }
+        else
+        {
+        @switch (Model.Status)
+        {
+            case OrderStatus.Pending:
+                <form asp-controller="Orders" asp-action="MoveTo" method="post">
+                    <input type="hidden" name="orderNo" value="@Model.OrderNo" />
+                    <input type="hidden" name="status" value="@OrderStatus.Packing.ToCode()" />
+                    <input type="hidden" name="returnSection" value="packing" />
+                    <button class="lc-btn lc-btn--primary lc-btn--sm" type="submit"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> รับออเดอร์ เริ่มแพ็ก</button>
+                </form>
+                break;
+            case OrderStatus.Packing when Model.Marketplace is { RiderDelivery: false }:
+                <partial name="Sections/_ShipmentForm" model="Model" />
+                <a class="lc-btn lc-btn--outline lc-btn--sm" asp-controller="Orders" asp-action="Label" asp-route-orderNo="@Model.OrderNo" target="_blank" rel="noopener">
+                    <i class="bi bi-printer" aria-hidden="true"></i> พิมพ์ใบปะหน้า
+                </a>
+                break;
+            case OrderStatus.Packing:
+                <form asp-controller="Orders" asp-action="MoveTo" method="post">
+                    <input type="hidden" name="orderNo" value="@Model.OrderNo" />
+                    <input type="hidden" name="status" value="@OrderStatus.Ready.ToCode()" />
+                    <input type="hidden" name="returnSection" value="packing" />
+                    <button class="lc-btn lc-btn--primary lc-btn--sm" type="submit"><i class="bi bi-box2-heart" aria-hidden="true"></i> แพ็กเสร็จ เรียกไรเดอร์</button>
+                </form>
+                <a class="lc-btn lc-btn--outline lc-btn--sm" asp-controller="Orders" asp-action="Label" asp-route-orderNo="@Model.OrderNo" target="_blank" rel="noopener">
+                    <i class="bi bi-printer" aria-hidden="true"></i> พิมพ์ใบปะหน้า
+                </a>
+                break;
+            case OrderStatus.Ready:
+                <span class="lc-hint"><i class="bi bi-hourglass-split" aria-hidden="true"></i> รอไรเดอร์มารับ</span>
+                <a class="lc-btn lc-btn--outline lc-btn--sm" asp-controller="Orders" asp-action="Label" asp-route-orderNo="@Model.OrderNo" target="_blank" rel="noopener">
+                    <i class="bi bi-printer" aria-hidden="true"></i> พิมพ์ใบปะหน้า
+                </a>
+                break;
+        }
+
+        }
+
+        @if (Model.Marketplace?.PaymentId is null && Model.Status is (OrderStatus.Pending or OrderStatus.Packing))
+        {
+            <form class="lc-pack__cancel" asp-controller="Orders" asp-action="Cancel" method="post"
+                  data-confirm="ยกเลิกออเดอร์ @Model.OrderNo? ระบบจะคืนสต็อกและคืนสิทธิ์คูปองให้ลูกค้า">
+                <input type="hidden" name="orderNo" value="@Model.OrderNo" />
+                <input type="hidden" name="returnSection" value="packing" />
+                <button class="lc-btn lc-btn--ghost lc-btn--sm lc-danger-text" type="submit">ยกเลิก</button>
+            </form>
+        }
+    </footer>
+</article>

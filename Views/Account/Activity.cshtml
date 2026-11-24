@@ -1,0 +1,16 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (AdminActivityModel)Model.Model!;
+}
+<article class="lc-panel">
+    <form class="lc-toolbar" asp-controller="Account" asp-action="Activity" method="get">
+        <label class="lc-search">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" name="search" value="@content.Search" placeholder="ค้นหาชื่อผู้ทำหรือรายการ" aria-label="ค้นหาประวัติ" />
+        </label>
+        <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">ค้นหา</button>
+    </form>
+    <partial name="Sections/_ActivityList" model="content.Activities.Items" />
+    <partial name="Sections/_Pager" model='PagerModel.From(content.Activities, "activity", content.Search)' />
+</article>

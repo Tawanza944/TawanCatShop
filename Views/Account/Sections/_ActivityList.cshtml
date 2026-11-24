@@ -1,0 +1,18 @@
+@model IReadOnlyList<AdminActivity>
+@if (Model.Count == 0)
+{
+    <p class="lc-hint">ยังไม่มีประวัติ</p>
+}
+else
+{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    <ol class="lc-timeline">
+        @foreach (var a in Model)
+        {
+            <li>
+                <time datetime="@a.CreatedUtc.ToString("o")">@a.CreatedUtc.ToLocalTime().ToString("d MMM HH:mm", thai)</time>
+                <p><strong>@a.Actor</strong> @a.Description</p>
+            </li>
+        }
+    </ol>
+}

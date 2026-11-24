@@ -1,0 +1,56 @@
+@model CouponTicket
+@using WebApplication1.Domain.Pricing
+@* One coupon as a ticket. Used on the promotion page and in the customer's "คูปองของฉัน". *@
+@{
+    var coupon = Model.Coupon;
+    var culture = new System.Globalization.CultureInfo("th-TH");
+    var icon = coupon.DiscountType switch { CouponTypes.FreeShipping => "bi-truck", CouponTypes.Percent => "bi-percent", _ => "bi-tag" };
+    var value = coupon.DiscountType switch
+    {
+        CouponTypes.FreeShipping => "ส่งฟรี",
+        CouponTypes.Percent => $"ลด {coupon.DiscountValue:0.#}%",
+        _ => $"ลด {coupon.DiscountValue:N0} บาท"
+    };
+}
+<article class="lc-ticket lc-promo-ticket @(Model.Used ? "is-used" : Model.Saved ? "is-collected" : null)" data-ticket>
+    <div class="lc-ticket__body">
+        <i class="bi @(icon) lc-site-icon" aria-hidden="true"></i>
+        <div>
+            <p class="lc-ticket__value">@value</p>
+            <p class="lc-ticket__terms">@(coupon.Description ?? coupon.Name)</p>
+            <span class="lc-promo-tag">@(coupon.MinSpend > 0 ? $"ซื้อครบ ฿{coupon.MinSpend:N0}" : "ไม่มีขั้นต่ำ")</span>
+            @if (coupon.ApplicableCategoryList.Count > 0)
+            {
+                <span class="lc-promo-tag">เฉพาะ @string.Join(", ", coupon.ApplicableCategoryList)</span>
+            }
+            @if (coupon.MaxDiscount is > 0)
+            {
+                <span class="lc-promo-tag">ลดสูงสุด ฿@coupon.MaxDiscount.Value.ToString("N0")</span>
+            }
+            <p class="lc-ticket__expiry">@(coupon.ExpiresAt is { } expires ? $"ใช้ได้ถึง {expires.ToLocalTime().ToString("d MMM yyyy", culture)}" : "ไม่มีวันหมดอายุ")</p>
+        </div>
+    </div>
+    <div class="lc-ticket__stub">
+        <span class="lc-ticket__code">@coupon.Code</span>
+        @if (Model.Used)
+        {
+            <span class="lc-hint">ใช้แล้ว</span>
+        }
+        else if (Model.UseToShop)
+        {
+            <a class="lc-btn lc-btn--primary lc-btn--sm" asp-controller="Home" asp-action="Product" data-use-coupon="@coupon.Code">ใช้โค้ด</a>
+        }
+        else if (Model.Saved)
+        {
+            <button type="button" class="lc-btn lc-btn--primary lc-btn--sm" disabled>เก็บแล้ว</button>
+        }
+        else
+        {
+            <form asp-controller="Coupons" asp-action="Save" method="post">
+                <input type="hidden" name="couponId" value="@coupon.Id" />
+                <button type="submit" class="lc-btn lc-btn--primary lc-btn--sm">เก็บโค้ด</button>
+            </form>
+        }
+    </div>
+    <span class="lc-stamp lc-promo-ticket__collected @(Model.Used ? "lc-stamp--plain" : null)" aria-hidden="true">@(Model.Used ? "ใช้แล้ว" : "เก็บแล้ว")</span>
+</article>

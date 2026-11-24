@@ -1,0 +1,16 @@
+@* One confirm dialog for the whole back office. Any form with data-confirm="..." asks here before it is sent (see backoffice.js). *@
+<div class="modal fade" id="confirmDialog" tabindex="-1" aria-labelledby="confirmDialogTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content lc-confirm">
+            <div class="modal-body">
+                <i class="bi bi-exclamation-triangle lc-site-icon lc-site-icon--56" aria-hidden="true"></i>
+                <h2 class="modal-title" id="confirmDialogTitle">แน่ใจนะ?</h2>
+                <p data-confirm-message></p>
+                <div class="lc-confirm__actions">
+                    <button type="button" class="lc-btn lc-btn--ghost" data-bs-dismiss="modal">ไม่ใช่</button>
+                    <button type="button" class="lc-btn lc-btn--primary" data-confirm-accept>ใช่ ทำเลย</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

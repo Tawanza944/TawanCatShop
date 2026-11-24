@@ -1,0 +1,133 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (AdminUsersModel)Model.Model!;
+}
+@using System.Text.Json
+<article class="lc-panel">
+    <div class="lc-toolbar">
+        <form class="lc-toolbar__filters" asp-controller="Account" asp-action="Users" method="get">
+            <label class="lc-search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input type="search" name="search" value="@content.Search" placeholder="ชื่อ ชื่อผู้ใช้ อีเมล หรือเบอร์" aria-label="ค้นหาผู้ใช้" />
+            </label>
+            <select class="lc-select" name="filter" aria-label="กรองตามบทบาท" data-auto-submit>
+                <option value="">ทุกบทบาท</option>
+                @foreach (var role in content.Roles)
+                {
+                    <option value="@role" selected="@(role == content.RoleFilter)">@RoleProfiles.For(role).ThaiName</option>
+                }
+            </select>
+            <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">ค้นหา</button>
+        </form>
+        <button type="button" class="lc-btn lc-btn--primary" data-bs-toggle="modal" data-bs-target="#userModal">
+            <i class="bi bi-person-plus" aria-hidden="true"></i> เพิ่มผู้ใช้
+        </button>
+    </div>
+
+    @if (content.Users.Items.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@("ไม่พบผู้ใช้ที่ตรงกับคำค้น")" />
+    }
+    else
+    {
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead>
+                    <tr><th>ผู้ใช้</th><th>ติดต่อ</th><th>บทบาท</th><th>สถานะ</th><th class="lc-num">จัดการ</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in content.Users.Items)
+                    {
+                        var profile = RoleProfiles.For(user.Role);
+                        var fill = JsonSerializer.Serialize(new { user.Id, user.Username, user.Name, user.Email, PhoneNumber = user.Phone ?? "", user.Role, Password = "" });
+                        <tr class="@(user.Suspended ? "is-muted" : null)">
+                            <td>
+                                <div class="lc-person">
+                                    <span class="lc-people__initial" aria-hidden="true">@user.Name[..1]</span>
+                                    <div>
+                                        <strong>@user.Name</strong>
+                                        @if (user.IsSelf)
+                                        {
+                                            <small class="lc-tag">คุณ</small>
+                                        }
+                                        <br /><small>@@@user.Username</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><small>@user.Email<br />@(user.Phone ?? "—")</small></td>
+                            <td><span class="lc-role lc-role--@user.Role.ToLowerInvariant()"><i class="bi @profile.Icon" aria-hidden="true"></i> @profile.ThaiName</span></td>
+                            <td>
+                                @if (user.Suspended)
+                                {
+                                    <span class="lc-status lc-status--danger">ระงับ</span>
+                                }
+                                else
+                                {
+                                    <span class="lc-status lc-status--success">ใช้งาน</span>
+                                }
+                            </td>
+                            <td class="lc-num">
+                                <div class="lc-row-actions">
+                                    <button type="button" class="lc-btn lc-btn--ghost lc-btn--sm" data-bs-toggle="modal" data-bs-target="#userModal"
+                                            data-fill="@fill" data-fill-title="แก้ไขข้อมูล @user.Username">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i> แก้ไข
+                                    </button>
+                                    @if (!user.IsSelf)
+                                    {
+                                        <form asp-controller="Admin" asp-action="SetSuspended" method="post"
+                                              data-confirm="@(user.Suspended ? $"เปิดใช้บัญชี {user.Username} อีกครั้ง?" : $"ระงับ {user.Username}? บัญชีนี้จะเข้าสู่ระบบไม่ได้จนกว่าจะเปิดใหม่")">
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <input type="hidden" name="suspended" value="@(user.Suspended ? "false" : "true")" />
+                                            <button class="lc-btn lc-btn--ghost lc-btn--sm" type="submit">
+                                                <i class="bi @(user.Suspended ? "bi-unlock" : "bi-slash-circle")" aria-hidden="true"></i> @(user.Suspended ? "เปิดใช้" : "ระงับ")
+                                            </button>
+                                        </form>
+                                        <form asp-controller="Admin" asp-action="DeleteUser" method="post"
+                                              data-confirm="ลบ @user.Username ถาวร? บัญชีนี้จะหายไปและกู้คืนไม่ได้">
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <button class="lc-btn lc-btn--ghost lc-btn--sm lc-danger-text" type="submit" aria-label="ลบ @user.Username"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="Sections/_Pager" model='PagerModel.From(content.Users, "users", content.Search, content.RoleFilter)' />
+    }
+</article>
+
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalTitle" aria-hidden="true" data-fill-form>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <form class="modal-content" asp-controller="Admin" asp-action="SaveUser" method="post">
+            <div class="modal-header">
+                <h2 class="modal-title" id="userModalTitle" data-fill-heading="เพิ่มผู้ใช้ใหม่">เพิ่มผู้ใช้ใหม่</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body lc-form-grid">
+                <input type="hidden" name="Id" value="0" />
+                <label class="lc-field"><span class="lc-label">ชื่อ-นามสกุล</span><input class="lc-input" name="Name" required minlength="2" maxlength="100" /></label>
+                <label class="lc-field"><span class="lc-label">ชื่อผู้ใช้</span><input class="lc-input" name="Username" required pattern="[A-Za-z0-9_.]{3,50}" /></label>
+                <label class="lc-field"><span class="lc-label">อีเมล</span><input class="lc-input" type="email" name="Email" required /></label>
+                <label class="lc-field"><span class="lc-label">เบอร์โทร</span><input class="lc-input" name="PhoneNumber" pattern="0[0-9]{8,9}" placeholder="0812345678" /></label>
+                <label class="lc-field"><span class="lc-label">บทบาท</span>
+                    <select class="lc-select" name="Role">
+                        @foreach (var role in content.Roles)
+                        {
+                            <option value="@role">@RoleProfiles.For(role).ThaiName (@role)</option>
+                        }
+                    </select>
+                </label>
+                <label class="lc-field" data-new-only><span class="lc-label">รหัสผ่านเริ่มต้น</span><input class="lc-input" type="password" name="Password" minlength="6" autocomplete="new-password" />
+                    <small class="lc-hint">อย่างน้อย 6 ตัว ใช้เฉพาะตอนสร้างบัญชี</small></label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="lc-btn lc-btn--ghost" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="submit" class="lc-btn lc-btn--primary">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,55 @@
+@model (IReadOnlyList<LedgerLine> Lines, bool Manage)
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    string KindText(LedgerLineKind kind) => kind switch
+    {
+        LedgerLineKind.CustomerPayment => "ลูกค้าชำระ",
+        LedgerLineKind.ShopPayout => "โอนให้ร้าน",
+        LedgerLineKind.RiderFee => "ค่าส่ง",
+        LedgerLineKind.ManualIncome => "รายรับอื่น",
+        LedgerLineKind.ShippingCollected => "ค่าส่งที่รับ",
+        LedgerLineKind.CouponCost => "คูปอง",
+        LedgerLineKind.FlashSaleCost => "Flash Sale",
+        LedgerLineKind.RewardsCost => "เงินสะสม",
+        _ => "รายจ่ายอื่น"
+    };
+}
+<div class="lc-table-wrap">
+    <table class="lc-table lc-ledger">
+        <thead>
+            <tr><th>วันที่</th><th>รายการ</th><th>ประเภท</th><th class="lc-num">เงินเข้า</th><th class="lc-num">เงินออก</th><th class="lc-num">คงเหลือ</th>@if (Model.Manage) { <th></th> }</tr>
+        </thead>
+        <tbody>
+            @foreach (var line in Model.Lines)
+            {
+                <tr>
+                    <td>@line.At.ToLocalTime().ToString("d MMM yy", thai)</td>
+                    <td>
+                        <strong>@line.Title</strong>
+                        <br /><small class="lc-hint">@line.Reference@(line.Party is null ? null : " · " + line.Party)</small>
+                        @if (line.AwaitingCommission)
+                        {
+                            <span class="lc-status lc-status--warning">รอหักคอม</span>
+                        }
+                    </td>
+                    <td><span class="lc-kind lc-kind--@line.Kind.ToString().ToLowerInvariant()">@KindText(line.Kind)</span></td>
+                    <td class="lc-num lc-in">@(line.MoneyIn > 0 ? "+" + line.MoneyIn.ToString("N2") : "")</td>
+                    <td class="lc-num lc-out">@(line.MoneyOut > 0 ? "−" + line.MoneyOut.ToString("N2") : "")</td>
+                    <td class="lc-num"><strong>@line.Balance.ToString("N2")</strong></td>
+                    @if (Model.Manage)
+                    {
+                        <td class="lc-num">
+                            @if (line.EntryId is { } entryId)
+                            {
+                                <form asp-controller="Accounting" asp-action="DeleteEntry" method="post" data-confirm="ลบรายการ “@line.Title”?">
+                                    <input type="hidden" name="id" value="@entryId" />
+                                    <button class="lc-btn lc-btn--ghost lc-btn--sm lc-danger-text" type="submit" aria-label="ลบรายการ"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+                                </form>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

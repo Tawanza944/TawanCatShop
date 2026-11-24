@@ -1,0 +1,60 @@
+@model DashboardPage
+@using WebApplication1.Domain.Orders
+@{
+    Layout = "_DashboardLayout";
+    var content = (AdminDashboard.ShopAdminModel)Model.Model!;
+}
+<article class="lc-panel">
+    <h2>เพิ่มร้านค้า</h2>
+    <form asp-controller="Marketplace" asp-action="SaveShop" method="post" class="lc-toolbar__filters">
+        <label>ชื่อร้าน <input class="lc-input" name="name" maxlength="100" required /></label>
+        <label>จุดรับสินค้า <input class="lc-input" name="pickupAddress" maxlength="500" required /></label>
+        <button class="lc-btn lc-btn--primary" type="submit">เพิ่มร้าน</button>
+    </form>
+    @foreach (var shop in content.Shops)
+    {
+        <form asp-controller="Marketplace" asp-action="SaveShop" method="post" class="lc-toolbar__filters">
+            <input type="hidden" name="id" value="@shop.Id" />
+            <label>ชื่อร้าน <input class="lc-input" name="name" value="@shop.Name" maxlength="100" required /></label>
+            <label>จุดรับสินค้า <input class="lc-input" name="pickupAddress" value="@shop.PickupAddress" maxlength="500" required /></label>
+            <button class="lc-btn lc-btn--outline" type="submit">บันทึก</button>
+        </form>
+    }
+</article>
+<article class="lc-panel">
+    <h2>กำหนดร้านให้บัญชี Shop</h2>
+    <form asp-controller="Marketplace" asp-action="AssignShop" method="post" class="lc-toolbar__filters">
+        <label>บัญชี Shop <select class="lc-input" name="userId" required>
+            <option value="">เลือกบัญชี</option>
+            @foreach (var account in content.Accounts.Where(account => account.Role == "Shop"))
+            {
+                <option value="@account.Id">@account.Username</option>
+            }
+        </select></label>
+        <label>ร้านค้า <select class="lc-input" name="shopId" required>
+            <option value="">เลือกร้าน</option>
+            @foreach (var shop in content.Shops)
+            {
+                <option value="@shop.Id">@shop.Name</option>
+            }
+        </select></label>
+        <button class="lc-btn lc-btn--primary" type="submit">ผูกบัญชี</button>
+    </form>
+</article>
+<article class="lc-panel">
+    <h2>กำหนดจังหวัดให้ไรเดอร์</h2>
+    <form asp-controller="Marketplace" asp-action="AssignProvince" method="post" class="lc-toolbar__filters">
+        <label>บัญชีไรเดอร์ <select class="lc-input" name="userId" required>
+            <option value="">เลือกบัญชี</option>
+            @foreach (var account in content.Accounts.Where(account => account.Role == "Raider"))
+            {
+                <option value="@account.Id">@account.Username</option>
+            }
+        </select></label>
+        <label>จังหวัด <select class="lc-input" name="provinceCode" required>
+            <option value="">เลือกจังหวัด</option>
+            <option value="@DeliveryCoverage.BangkokCode">@DeliveryCoverage.BangkokName</option>
+        </select></label>
+        <button class="lc-btn lc-btn--primary" type="submit">บันทึกจังหวัด</button>
+    </form>
+</article>

@@ -1,0 +1,176 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (ShopProductsModel)Model.Model!;
+}
+@using System.Text.Json
+<article class="lc-panel lc-shop-tools">
+    <header class="lc-panel__head">
+        <h2>ร้านของฉัน</h2>
+        <div class="lc-row-actions">
+            <a class="lc-btn lc-btn--outline lc-btn--sm" asp-controller="Shop" asp-action="Messages"><i class="bi bi-chat-dots" aria-hidden="true"></i> ข้อความจากลูกค้า</a>
+            <a class="lc-btn lc-btn--outline lc-btn--sm" asp-controller="Shop" asp-action="Reviews"><i class="bi bi-star" aria-hidden="true"></i> รีวิวสินค้า</a>
+        </div>
+    </header>
+    <form class="lc-shop-tools__form" asp-controller="Shop" asp-action="SaveProfileImage" method="post" enctype="multipart/form-data">
+        <label class="lc-field">
+            <span class="lc-label">รูปโปรไฟล์ร้าน</span>
+            <input class="lc-input" type="file" name="image" accept="image/jpeg,image/png,image/webp" required />
+            <small class="lc-hint">JPG, PNG หรือ WebP ไม่เกิน 5 MB · แสดงที่หัวหน้าร้านของคุณ</small>
+        </label>
+        <button class="lc-btn lc-btn--primary" type="submit"><i class="bi bi-upload" aria-hidden="true"></i> บันทึกรูป</button>
+    </form>
+</article>
+<article class="lc-panel">
+    <div class="lc-toolbar">
+        <form class="lc-toolbar__filters" asp-controller="Account" asp-action="Product" method="get">
+            <label class="lc-search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input type="search" name="search" value="@content.Search" placeholder="ชื่อสินค้า" aria-label="ค้นหาสินค้า" />
+            </label>
+            <select class="lc-select" name="filter" aria-label="กรองตามหมวด" data-auto-submit>
+                <option value="">ทุกหมวด</option>
+                @foreach (var c in content.Categories)
+                {
+                    <option value="@c.Name" selected="@(c.Name == content.CategoryFilter)">@c.Name</option>
+                }
+            </select>
+            <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">ค้นหา</button>
+        </form>
+        <button type="button" class="lc-btn lc-btn--primary" data-bs-toggle="modal" data-bs-target="#productModal">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> เพิ่มสินค้า
+        </button>
+    </div>
+
+    @if (content.Products.Items.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@("ไม่พบสินค้า")" />
+    }
+    else
+    {
+        <div class="lc-table-wrap">
+            <table class="lc-table lc-table--products">
+                <thead><tr><th>สินค้า</th><th>หมวด</th><th class="lc-num">ราคา</th><th class="lc-num">สต็อก</th><th class="lc-num">จัดการ</th></tr></thead>
+                <tbody>
+                    @foreach (var p in content.Products.Items)
+                    {
+                        var low = p.Stock <= content.LowStockThreshold;
+                        var isWebImage = p.ImageUrl?.StartsWith("http", StringComparison.OrdinalIgnoreCase) == true;
+                        var fill = JsonSerializer.Serialize(new
+                        {
+                            p.Id, p.Name, p.Category, Price = p.Price.ToString("0.##"), OriginalPrice = p.OriginalPrice?.ToString("0.##") ?? "",
+                            p.Stock, Description = p.Description ?? "", ImageUrl = isWebImage ? p.ImageUrl : "", Preview = p.ImageUrl ?? ""
+                        });
+                        <tr>
+                            <td>
+                                <div class="lc-product-cell">
+                                    @if (!string.IsNullOrEmpty(p.ImageUrl))
+                                    {
+                                        <img src="@p.ImageUrl" alt="" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span class="lc-items__ph"><i class="bi bi-image" aria-hidden="true"></i></span>
+                                    }
+                                    <div>
+                                        <a class="lc-link" asp-controller="Home" asp-action="ProductDetail" asp-route-id="@p.Id" target="_blank">@p.Name</a>
+                                        <small>รหัส #@p.Id · ★ @p.Rating.ToString("0.0") (@p.ReviewCount)</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><small>@p.Category</small></td>
+                            <td class="lc-num">
+                                <strong>฿@p.Price.ToString("N0")</strong>
+                                @if (p.OriginalPrice is > 0)
+                                {
+                                    <br /><small class="lc-was">฿@p.OriginalPrice.Value.ToString("N0")</small>
+                                }
+                            </td>
+                            <td class="lc-num">
+                                <span class="lc-stock @(p.Stock == 0 ? "is-out" : low ? "is-low" : null)">@(p.Stock == 0 ? "หมด" : p.Stock.ToString("N0"))</span>
+                            </td>
+                            <td class="lc-num">
+                                <div class="lc-row-actions">
+                                    <button type="button" class="lc-btn lc-btn--outline lc-btn--sm" data-bs-toggle="modal" data-bs-target="#restockModal"
+                                            data-fill='@JsonSerializer.Serialize(new { id = p.Id, name = p.Name, stock = p.Stock })'>
+                                        <i class="bi bi-plus-circle" aria-hidden="true"></i> เติม
+                                    </button>
+                                    <button type="button" class="lc-btn lc-btn--ghost lc-btn--sm" data-bs-toggle="modal" data-bs-target="#productModal"
+                                            data-fill="@fill" data-fill-title="แก้ไขสินค้า" aria-label="แก้ไข @p.Name"><i class="bi bi-pencil" aria-hidden="true"></i></button>
+                                    <form asp-controller="Shop" asp-action="DeleteProduct" method="post" data-confirm="ลบ @p.Name ออกจากร้าน? ลูกค้าจะไม่เห็นสินค้านี้อีก">
+                                        <input type="hidden" name="id" value="@p.Id" />
+                                        <button class="lc-btn lc-btn--ghost lc-btn--sm lc-danger-text" type="submit" aria-label="ลบ @p.Name"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="Sections/_Pager" model='PagerModel.From(content.Products, "products", content.Search, content.CategoryFilter)' />
+    }
+</article>
+
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalTitle" aria-hidden="true" data-fill-form>
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <form class="modal-content" asp-controller="Shop" asp-action="SaveProduct" method="post" enctype="multipart/form-data">
+            <div class="modal-header">
+                <h2 class="modal-title" id="productModalTitle" data-fill-heading="เพิ่มสินค้าใหม่">เพิ่มสินค้าใหม่</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body lc-product-form">
+                <input type="hidden" name="Id" value="0" />
+                <div class="lc-product-form__photo">
+                    <div class="lc-photo-drop">
+                        <img alt="" data-fill-src="Preview" data-image-preview hidden />
+                        <span data-image-empty><i class="bi bi-box-seam lc-site-icon lc-site-icon--64" aria-hidden="true"></i><br />ยังไม่มีรูป</span>
+                    </div>
+                    <label class="lc-field"><span class="lc-label">อัปโหลดรูป (jpg, png, webp ไม่เกิน 5 MB)</span>
+                        <input class="lc-input" type="file" name="ImageFile" accept="image/jpeg,image/png,image/webp" data-image-input /></label>
+                    <label class="lc-field"><span class="lc-label">หรือวางลิงก์รูป</span>
+                        <input class="lc-input" type="url" name="ImageUrl" placeholder="https://..." data-image-input /></label>
+                    <small class="lc-hint">ตอนแก้ไข ถ้าไม่เลือกรูปใหม่ ระบบจะใช้รูปเดิม</small>
+                </div>
+                <div class="lc-form-grid">
+                    <label class="lc-field lc-field--wide"><span class="lc-label">ชื่อสินค้า</span><input class="lc-input" name="Name" required minlength="3" maxlength="255" /></label>
+                    <label class="lc-field lc-field--wide"><span class="lc-label">หมวด</span>
+                        <select class="lc-select" name="Category" required>
+                            @foreach (var c in content.Categories)
+                            {
+                                <option value="@c.Name">@c.Name</option>
+                            }
+                        </select>
+                    </label>
+                    <label class="lc-field"><span class="lc-label">ราคาขาย (บาท)</span><input class="lc-input" type="number" name="Price" min="1" step="0.01" required /></label>
+                    <label class="lc-field"><span class="lc-label">ราคาก่อนลด (ถ้ามี)</span><input class="lc-input" type="number" name="OriginalPrice" min="0" step="0.01" /></label>
+                    <label class="lc-field"><span class="lc-label">สต็อก (ชิ้น)</span><input class="lc-input" type="number" name="Stock" min="0" step="1" value="0" required /></label>
+                    <label class="lc-field lc-field--wide"><span class="lc-label">รายละเอียด</span><textarea class="lc-textarea" name="Description" rows="5" maxlength="2000"></textarea></label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="lc-btn lc-btn--ghost" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="submit" class="lc-btn lc-btn--primary">บันทึกสินค้า</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="restockModal" tabindex="-1" aria-labelledby="restockModalTitle" aria-hidden="true" data-fill-form>
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <form class="modal-content" asp-controller="Shop" asp-action="Restock" method="post">
+            <div class="modal-header">
+                <h2 class="modal-title" id="restockModalTitle">เติมสต็อก</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="id" />
+                <p><strong data-fill-text="name"></strong><br /><small class="lc-hint">ตอนนี้มี <span data-fill-text="stock"></span> ชิ้น</small></p>
+                <label class="lc-field"><span class="lc-label">เติมเพิ่ม (ชิ้น)</span><input class="lc-input" type="number" name="amount" min="1" max="10000" value="10" required /></label>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="lc-btn lc-btn--primary">เติมสต็อก</button>
+            </div>
+        </form>
+    </div>
+</div>

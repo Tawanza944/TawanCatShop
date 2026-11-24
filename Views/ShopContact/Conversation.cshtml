@@ -1,0 +1,60 @@
+@model WebApplication1.Services.Backoffice.ShopConversation
+@{
+    ViewData["Title"] = "พูดคุยกับร้าน";
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    var partner = Model.IsSeller ? $"ลูกค้า #{Model.CustomerId}" : Model.ShopName;
+}
+<div class="lc-container lc-chat-page">
+    <header class="lc-chat-head">
+        @if (Model.IsSeller)
+        {
+            <a class="lc-btn lc-btn--ghost lc-btn--sm" asp-controller="Shop" asp-action="Messages"><i class="bi bi-arrow-left" aria-hidden="true"></i> ข้อความทั้งหมด</a>
+        }
+        else
+        {
+            <a class="lc-btn lc-btn--ghost lc-btn--sm" asp-controller="Home" asp-action="Shop" asp-route-id="@Model.ShopId"><i class="bi bi-arrow-left" aria-hidden="true"></i> กลับไปหน้าร้าน</a>
+        }
+        <div class="lc-chat-head__who">
+            <span class="lc-chat-head__avatar" aria-hidden="true"><i class="bi @(Model.IsSeller ? "bi-person" : "bi-shop")"></i></span>
+            <div>
+                <h1>@partner</h1>
+                <small>@(Model.IsSeller ? $"คุยในนามร้าน {Model.ShopName}" : "ร้านจะตอบกลับในหน้านี้")</small>
+            </div>
+        </div>
+    </header>
+
+    <section class="lc-chat" aria-label="ข้อความ">
+        @if (Model.Messages.Count == 0)
+        {
+            <div class="lc-chat__empty">
+                <partial name="_CatIllustration" model="new CatIllustration(CatPose.Peeking)" />
+                <p>ยังไม่มีข้อความ ทักร้านได้เลย เช่น ถามขนาด สี หรือวันส่งของ</p>
+            </div>
+        }
+        else
+        {
+            <ol class="lc-chat__list">
+                @foreach (var message in Model.Messages)
+                {
+                    // "Mine" = written by whoever is looking at the page.
+                    var mine = message.FromShop == Model.IsSeller;
+                    <li class="lc-chat__msg @(mine ? "is-mine" : null)">
+                        <span class="lc-chat__author">@(mine ? "คุณ" : partner)</span>
+                        <p class="lc-chat__bubble">@message.Message</p>
+                        <time datetime="@message.SentAt.ToString("o")">@message.SentAt.ToLocalTime().ToString("d MMM · HH:mm น.", thai)</time>
+                    </li>
+                }
+            </ol>
+        }
+    </section>
+
+    <form class="lc-chat-compose" asp-action="Send" method="post">
+        <input type="hidden" name="id" value="@(Model.IsSeller ? Model.CustomerId : Model.ShopId)" />
+        <label class="visually-hidden" for="chatMessage">ข้อความ</label>
+        <textarea id="chatMessage" class="lc-textarea" name="message" rows="3" required maxlength="1000" placeholder="พิมพ์ข้อความถึง @partner"></textarea>
+        <div class="lc-chat-compose__foot">
+            <small class="lc-hint">ไม่เกิน 1,000 ตัวอักษร</small>
+            <button class="lc-btn lc-btn--primary" type="submit"><i class="bi bi-send" aria-hidden="true"></i> ส่งข้อความ</button>
+        </div>
+    </form>
+</div>

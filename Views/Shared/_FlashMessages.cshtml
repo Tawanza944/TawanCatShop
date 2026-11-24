@@ -1,0 +1,17 @@
+@{
+    var success = TempData["SuccessMessage"] as string;
+    var error = TempData["ErrorMessage"] as string;
+}
+@if (success is not null || error is not null)
+{
+    <div class="lc-container lc-flash-stack">
+        @if (success is not null)
+        {
+            <p class="lc-flash lc-flash--success" role="status"><i class="bi bi-check-circle" aria-hidden="true"></i>@success</p>
+        }
+        @if (error is not null)
+        {
+            <p class="lc-flash lc-flash--error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i>@error</p>
+        }
+    </div>
+}

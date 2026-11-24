@@ -1,0 +1,73 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration PaymentConfiguration
+@model WebApplication1.ViewComponents.CheckoutFormViewModel
+
+<form class="lc-checkout__grid" data-checkout-form novalidate>
+    <div class="lc-checkout__details">
+        <section>
+            <h3>ส่งของไปที่</h3>
+            <div class="lc-address-picker" data-saved-addresses role="group" aria-label="ที่อยู่ที่บันทึกไว้"
+                 data-save-url="@Url.Action("SaveAddress", "Account")" data-delete-url="@Url.Action("DeleteAddress", "Account")">
+                <partial name="_CheckoutAddresses" model="Model.Addresses" />
+            </div>
+            <button type="button" class="lc-btn lc-btn--outline lc-btn--sm lc-add-address" data-add-address><i class="bi bi-plus-lg" aria-hidden="true"></i> เพิ่มที่อยู่อื่น</button>
+            <p class="lc-hint" data-address-message hidden role="status"></p>
+
+            <div class="lc-checkout__fields" data-address-fields hidden>
+                <label class="lc-field lc-field--wide">
+                    <span class="lc-label">ชื่อที่อยู่</span>
+                    <input class="lc-input" name="addressLabel" maxlength="50" placeholder="เช่น บ้าน หรือ ที่ทำงาน" />
+                </label>
+                <label class="lc-field">
+                    <span class="lc-label">ชื่อผู้รับ</span>
+                    <input class="lc-input" name="customerName" autocomplete="name" value="@Model.DefaultName" required maxlength="100" />
+                </label>
+                <label class="lc-field">
+                    <span class="lc-label">เบอร์มือถือ</span>
+                    <input class="lc-input" name="customerPhone" autocomplete="tel" inputmode="numeric" value="@Model.DefaultPhone" placeholder="0812345678" required pattern="0[0-9]{9}" maxlength="10" />
+                </label>
+                <label class="lc-field lc-field--wide">
+                    <span class="lc-label">ที่อยู่จัดส่ง</span>
+                    <textarea class="lc-textarea" name="shippingAddress" autocomplete="street-address" rows="3" required minlength="15" maxlength="500" placeholder="บ้านเลขที่ หมู่ ซอย ถนน"></textarea>
+                </label>
+                <partial name="_AddressRegionFields" />
+                <div class="lc-field--wide">
+                    <button type="button" class="lc-btn lc-btn--primary lc-btn--sm" data-save-address>บันทึกที่อยู่</button>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3>โอนชำระยอดรวม</h3>
+            <input type="hidden" name="paymentMethod" value="promptpay" />
+            @if (!string.IsNullOrWhiteSpace(PaymentConfiguration["Payment:Recipient"]) && !string.IsNullOrWhiteSpace(PaymentConfiguration["Payment:Reference"]))
+            {
+                <p>พร้อมเพย์ <strong>@PaymentConfiguration["Payment:Reference"]</strong><br />ชื่อผู้รับ @PaymentConfiguration["Payment:Recipient"]</p>
+            }
+            else
+            {
+                <p class="lc-hint">บัญชีรับโอนยังไม่ได้ตั้งค่า ติดต่อฝ่ายบัญชีสำหรับรายละเอียดการโอน</p>
+            }
+            <label class="lc-field"><span class="lc-label">สลิปชำระเงิน JPG หรือ PNG ไม่เกิน 2 MB</span>
+                <input class="lc-input" type="file" name="paymentSlip" accept="image/jpeg,image/png" />
+            </label>
+        </section>
+    </div>
+
+    <aside class="lc-checkout__summary">
+        <h3>สรุปคำสั่งซื้อ</h3>
+        <ul class="lc-checkout__items" data-checkout-items></ul>
+        <div class="lc-coupon-field">
+            <input class="lc-input" type="text" placeholder="ใส่โค้ดส่วนลด" aria-label="โค้ดส่วนลด" data-coupon-input />
+            <button type="button" class="lc-btn lc-btn--outline lc-btn--sm" data-coupon-apply>ใช้โค้ด</button>
+        </div>
+        <p class="lc-coupon-message" data-coupon-message hidden></p>
+        <label class="lc-field">
+            <span><input type="checkbox" name="useRewards" /> ใช้เงินสะสม <small data-reward-balance></small></span>
+        </label>
+        <partial name="_ReceiptSummary" />
+        <p class="lc-hint" data-checkout-quote-status role="status" hidden></p>
+        <p class="lc-error" data-checkout-error role="alert" hidden></p>
+        <button type="submit" class="lc-btn lc-btn--primary lc-checkout__submit" data-checkout-submit>ยืนยันสั่งซื้อ</button>
+        <p class="lc-hint">ราคาและส่วนลดคำนวณจากระบบร้านอีกครั้งตอนยืนยัน</p>
+    </aside>
+</form>

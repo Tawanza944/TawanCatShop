@@ -1,0 +1,185 @@
+/* Element defaults and Bootstrap component theming. Loaded after Bootstrap so these win. */
+
+html {
+    font-size: 15px;
+}
+
+/* Page background: cream with faint cat paw prints. One 180px SVG tile holds two paws (one turned) so the
+   pattern does not look like a grid. Cards and panels keep their own solid background, so text stays easy to read. */
+body {
+    margin: 0;
+    background-color: var(--lc-surface-page);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='%232b2118' fill-opacity='0.05'%3E%3Cg transform='translate(42 46) rotate(-18)'%3E%3Cellipse cx='0' cy='10' rx='11' ry='9'/%3E%3Cellipse cx='-12' cy='-6' rx='4.5' ry='6'/%3E%3Cellipse cx='-4' cy='-12' rx='4.5' ry='6'/%3E%3Cellipse cx='5' cy='-12' rx='4.5' ry='6'/%3E%3Cellipse cx='13' cy='-6' rx='4.5' ry='6'/%3E%3C/g%3E%3Cg transform='translate(132 128) rotate(24)'%3E%3Cellipse cx='0' cy='10' rx='11' ry='9'/%3E%3Cellipse cx='-12' cy='-6' rx='4.5' ry='6'/%3E%3Cellipse cx='-4' cy='-12' rx='4.5' ry='6'/%3E%3Cellipse cx='5' cy='-12' rx='4.5' ry='6'/%3E%3Cellipse cx='13' cy='-6' rx='4.5' ry='6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    color: var(--lc-text);
+    font-family: var(--lc-font-body);
+    line-height: var(--lc-leading-body);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3,
+.lc-display {
+    font-family: var(--lc-font-display);
+    font-weight: var(--lc-weight-display);
+    line-height: var(--lc-leading-heading);
+    color: var(--lc-text);
+    letter-spacing: 0;
+}
+
+h4, h5, h6 {
+    font-family: var(--lc-font-body);
+    font-weight: 600;
+    line-height: var(--lc-leading-heading);
+}
+
+a {
+    color: var(--lc-link);
+    text-underline-offset: 3px;
+}
+
+a:hover {
+    color: var(--lc-link-hover);
+}
+
+::selection {
+    background: var(--lc-yellow-300);
+    color: var(--lc-text);
+}
+
+:focus-visible {
+    outline: 2px solid var(--lc-yellow-600);
+    outline-offset: 2px;
+}
+
+/* Bootstrap buttons follow the LoveCat actions: cocoa primary, yellow secondary */
+.btn {
+    --bs-btn-font-weight: 500;
+    --bs-btn-border-radius: var(--lc-radius-round);
+    --bs-btn-focus-box-shadow: var(--lc-focus-ring);
+    line-height: 1.5;
+}
+
+.btn-primary,
+.btn-dark {
+    --bs-btn-color: var(--lc-on-action);
+    --bs-btn-bg: var(--lc-action);
+    --bs-btn-border-color: var(--lc-action);
+    --bs-btn-hover-color: var(--lc-on-action);
+    --bs-btn-hover-bg: var(--lc-action-hover);
+    --bs-btn-hover-border-color: var(--lc-action-hover);
+    --bs-btn-active-color: var(--lc-on-action);
+    --bs-btn-active-bg: var(--lc-action-hover);
+    --bs-btn-active-border-color: var(--lc-action-hover);
+    --bs-btn-disabled-color: var(--lc-on-action);
+    --bs-btn-disabled-bg: var(--lc-action);
+    --bs-btn-disabled-border-color: var(--lc-action);
+}
+
+.btn-warning {
+    --bs-btn-color: var(--lc-text-on-brand);
+    --bs-btn-bg: var(--lc-highlight);
+    --bs-btn-border-color: var(--lc-border-ink);
+    --bs-btn-hover-color: var(--lc-text-on-brand);
+    --bs-btn-hover-bg: var(--lc-highlight-hover);
+    --bs-btn-hover-border-color: var(--lc-border-ink);
+}
+
+.btn-outline-dark,
+.btn-outline-secondary {
+    --bs-btn-color: var(--lc-text);
+    --bs-btn-border-color: var(--lc-border-ink);
+    --bs-btn-hover-color: var(--lc-on-action);
+    --bs-btn-hover-bg: var(--lc-action);
+    --bs-btn-hover-border-color: var(--lc-action);
+    --bs-btn-active-color: var(--lc-on-action);
+    --bs-btn-active-bg: var(--lc-action);
+    --bs-btn-active-border-color: var(--lc-action);
+}
+
+.nav-pills {
+    --bs-nav-pills-border-radius: var(--lc-radius-round);
+    --bs-nav-pills-link-active-color: var(--lc-on-action);
+    --bs-nav-pills-link-active-bg: var(--lc-action);
+}
+
+.form-control,
+.form-select {
+    background-color: var(--lc-surface-field);
+    border-color: var(--lc-border-strong);
+    border-radius: var(--lc-radius-sm);
+    color: var(--lc-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--lc-surface-card);
+    border-color: var(--lc-yellow-600);
+    box-shadow: var(--lc-focus-ring);
+}
+
+.form-check-input:checked {
+    background-color: var(--lc-action);
+    border-color: var(--lc-action);
+}
+
+.modal {
+    --bs-modal-bg: var(--lc-surface-card);
+    --bs-modal-border-radius: var(--lc-radius-lg);
+    --bs-modal-inner-border-radius: var(--lc-radius-lg);
+    --bs-modal-header-border-color: var(--lc-border);
+    --bs-modal-footer-border-color: var(--lc-border);
+}
+
+.modal-backdrop {
+    --bs-backdrop-bg: var(--lc-cocoa-900);
+    --bs-backdrop-opacity: 0.5;
+}
+
+.modal-title {
+    font-family: var(--lc-font-display);
+    font-weight: var(--lc-weight-display);
+}
+
+.dropdown-menu {
+    --bs-dropdown-bg: var(--lc-surface-card);
+    --bs-dropdown-border-color: var(--lc-border);
+    --bs-dropdown-border-radius: var(--lc-radius-md);
+    --bs-dropdown-link-hover-bg: var(--lc-surface-muted);
+    --bs-dropdown-link-active-bg: var(--lc-action);
+    --bs-dropdown-link-active-color: var(--lc-on-action);
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--lc-text);
+    --bs-table-border-color: var(--lc-border);
+    --bs-table-hover-bg: var(--lc-surface-field);
+}
+
+.alert {
+    --bs-alert-border-radius: var(--lc-radius-sm);
+}
+
+.alert-success {
+    --bs-alert-bg: var(--lc-success-bg);
+    --bs-alert-color: var(--lc-success-text);
+    --bs-alert-border-color: transparent;
+}
+
+.alert-danger {
+    --bs-alert-bg: var(--lc-danger-bg);
+    --bs-alert-color: var(--lc-danger-text);
+    --bs-alert-border-color: transparent;
+}
+
+.alert-warning {
+    --bs-alert-bg: var(--lc-warning-bg);
+    --bs-alert-color: var(--lc-warning-text);
+    --bs-alert-border-color: transparent;
+}
+
+.alert-info {
+    --bs-alert-bg: var(--lc-info-bg);
+    --bs-alert-color: var(--lc-info-text);
+    --bs-alert-border-color: transparent;
+}

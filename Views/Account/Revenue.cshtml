@@ -1,0 +1,63 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (ShopRevenueModel)Model.Model!;
+}
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+}
+<div class="lc-desk-grid lc-desk-grid--wide-left">
+    <article class="lc-panel">
+        <header class="lc-panel__head"><h2>ยอดขาย 14 วัน</h2></header>
+        <partial name="Sections/_Chart" model="content.Revenue" />
+    </article>
+    <article class="lc-panel lc-money-cards">
+        <div class="lc-money lc-money--in">
+            <i class="bi bi-cash-stack lc-site-icon lc-site-icon--44" aria-hidden="true"></i>
+            <span>ยอดรวมที่โอนให้ร้านแล้ว</span>
+            <strong>฿@content.NetTransferred.ToString("N2")</strong>
+        </div>
+        <div class="lc-money">
+            <span>หักคอมแล้ว ยังไม่โอน</span>
+            <strong>฿@content.NetPending.ToString("N2")</strong>
+        </div>
+        <div class="lc-money">
+            <i class="bi bi-receipt lc-site-icon lc-site-icon--44" aria-hidden="true"></i>
+            <span>รอฝ่ายบัญชีหักคอม</span>
+            <strong>฿@content.NetAwaiting.ToString("N2")</strong>
+        </div>
+    </article>
+</div>
+
+<article class="lc-panel">
+    <header class="lc-panel__head"><h2>ออเดอร์ที่ส่งสำเร็จ</h2></header>
+    @if (content.Orders.Items.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@("ยังไม่มีออเดอร์ที่ส่งถึงลูกค้า")" />
+    }
+    else
+    {
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead><tr><th>ออเดอร์</th><th>ลูกค้า</th><th>ส่งถึงเมื่อ</th><th class="lc-num">ยอดสินค้า</th><th class="lc-num">ค่าคอม</th><th class="lc-num">ยอดสุทธิ</th><th>สถานะ</th></tr></thead>
+                <tbody>
+                    @foreach (var row in content.Orders.Items)
+                    {
+                        <tr>
+                            <td class="lc-mono">@row.OrderNo</td>
+                            <td>@row.Customer</td>
+                            <td>@row.At.ToLocalTime().ToString("d MMM HH:mm", thai)</td>
+                            <td class="lc-num">฿@row.Total.ToString("N2")</td>
+                            <td class="lc-num">−฿@row.Commission.ToString("N2")</td>
+                            <td class="lc-num"><strong>฿@row.Net.ToString("N2")</strong></td>
+                            <td><span class="lc-status @(row.Transferred ? "lc-status--success" : "lc-status--warning")">@row.Status</span>
+                                @if (row.HasSlip) { <a asp-controller="Payments" asp-action="PayoutSlip" asp-route-id="@row.Id" target="_blank" rel="noopener">เปิดสลิปโอน</a> }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="Sections/_Pager" model='PagerModel.From(content.Orders, "revenue")' />
+    }
+</article>

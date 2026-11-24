@@ -1,0 +1,9 @@
+@model WebApplication1.ViewModels.Store.ProductCard
+
+@if (Model.FlashEndsAt is { } end)
+{
+    <span class="lc-flash-label" data-flash-label>
+        <i class="bi bi-lightning-charge" aria-hidden="true"></i> Flash Sale
+        <time datetime="@end.ToString("O")" data-flash-countdown>ถึง @end.ToOffset(TimeSpan.FromHours(7)).ToString("HH:mm")</time>
+    </span>
+}

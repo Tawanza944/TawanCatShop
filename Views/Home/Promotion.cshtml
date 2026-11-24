@@ -1,0 +1,60 @@
+@model WebApplication1.ViewModels.Store.PromotionPageViewModel
+@using WebApplication1.Domain.Pricing
+@{
+    ViewData["Title"] = "โปรโมชั่นและโค้ดส่วนลด";
+    var culture = new System.Globalization.CultureInfo("th-TH");
+}
+
+<div class="lc-container">
+    <section class="lc-promo-hero">
+        <span class="lc-eyebrow">ประจำเดือนนี้</span>
+        <h1>เก็บโค้ด แล้วช้อปให้น้อง</h1>
+        <p>เก็บคูปองใบละหนึ่งครั้ง แล้วเลือกใช้เมื่อพร้อมจากเมนูคูปองของฉัน</p>
+        <div class="lc-promo-hero__art" aria-hidden="true">
+            <i class="bi bi-gift lc-site-icon" aria-hidden="true"></i>
+            <i class="bi bi-ticket-perforated lc-site-icon" aria-hidden="true"></i>
+        </div>
+    </section>
+
+    <ol class="lc-promo-steps">
+        <li>กด "เก็บโค้ด" ที่คูปองด้านล่าง</li>
+        <li>เลือกใช้โค้ดจากคูปองของฉัน</li>
+        <li>ชำระเงินด้วยโค้ดที่เลือก</li>
+    </ol>
+
+    <div class="lc-section-head"><h2>โค้ดที่ใช้ได้ตอนนี้</h2><span class="lc-hint">@Model.Coupons.Count โค้ด</span></div>
+
+    @if (Model.Coupons.Count == 0)
+    {
+        <div class="lc-card lc-empty-state">
+            <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sleeping)" />
+            <p class="lc-empty-state__title">ตอนนี้ยังไม่มีโค้ดส่วนลด</p>
+            <span>แวะมาดูใหม่เร็วๆ นี้</span>
+        </div>
+    }
+    else
+    {
+        <div class="lc-ticket-grid">
+            @foreach (var coupon in Model.Coupons)
+            {
+                <partial name="_CouponTicket" model="new CouponTicket(coupon, Model.UsedCodes.Contains(coupon.Code), Saved: Model.SavedCouponIds.Contains(coupon.Id))" />
+            }
+        </div>
+    }
+
+    @if (Model.Deals.Count > 0)
+    {
+        <section class="lc-home-section" aria-labelledby="dealsTitle">
+            <div class="lc-section-head">
+                <h2 id="dealsTitle">ของลดราคาอยู่ตอนนี้</h2>
+                <a class="lc-link" asp-controller="Home" asp-action="Product">ดูสินค้าทั้งหมด</a>
+            </div>
+            <div class="lc-product-grid">
+                @foreach (var product in Model.Deals)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        </section>
+    }
+</div>

@@ -1,0 +1,86 @@
+@model RaiderJobsModel
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    var empty = Model.Mode switch
+    {
+        "mine" => "ยังไม่ได้รับงานไหน ไปดูงานรอรับได้เลย",
+        "jobs" => "ยังไม่มีงานใหม่ ร้านกำลังแพ็กของอยู่",
+        _ => "ไม่มีงานค้าง พักผ่อนก่อนได้"
+    };
+}
+@if (Model.Mode == "overview")
+{
+    <h2 class="lc-desk-subhead">งานถัดไปของคุณ</h2>
+}
+
+@if (Model.Orders.Count == 0)
+{
+    <partial name="Sections/_Empty" model="empty" />
+}
+else
+{
+    <div class="lc-job-list">
+        @foreach (var order in Model.Orders)
+        {
+            var delivering = order.Status == OrderStatus.Delivering;
+            var pickupShop = order.Marketplace?.Shop;
+            <article class="lc-job @(delivering ? "lc-job--active" : null)">
+                <div class="lc-job__route">
+                    <span class="lc-job__dot"><i class="bi bi-box-seam lc-site-icon lc-site-icon--26" aria-hidden="true"></i></span>
+                    <div>
+                        <small>รับที่</small>
+                        <strong>@(pickupShop?.Name ?? "ไม่พบชื่อร้าน")</strong>
+                        @if (!string.IsNullOrWhiteSpace(pickupShop?.PickupAddress))
+                        {
+                            <p>@pickupShop.PickupAddress</p>
+                        }
+                    </div>
+                    <span class="lc-job__line" aria-hidden="true"></span>
+                    <span class="lc-job__dot"><i class="bi bi-house-door lc-site-icon lc-site-icon--26" aria-hidden="true"></i></span>
+                    <div>
+                        <small>ส่งที่</small>
+                        <strong>@order.CustomerName</strong>
+                        <p>@order.ShippingAddress</p>
+                    </div>
+                </div>
+
+                <div class="lc-job__info">
+                    <span class="lc-mono">@order.OrderNo</span>
+                    <span class="@StatusTone.CssClass(order.Status)">@order.StatusThai</span>
+                    <span><i class="bi bi-box-seam" aria-hidden="true"></i> @order.Items.Sum(i => i.Quantity) ชิ้น</span>
+                    <span><i class="bi bi-cash-coin" aria-hidden="true"></i> @(order.PaymentMethod) · ฿@order.TotalAmount.ToString("N0")</span>
+                    @if (delivering)
+                    {
+                        <a class="lc-link" href="tel:@order.CustomerPhone"><i class="bi bi-telephone" aria-hidden="true"></i> @order.CustomerPhone</a>
+                    }
+                </div>
+
+                <div class="lc-job__cta">
+                    <span class="lc-job__fee">+฿@Model.FeePerJob.ToString("N0")</span>
+                    @if (delivering)
+                    {
+                        <form asp-controller="Orders" asp-action="MoveTo" method="post" data-confirm="ยืนยันว่าส่ง @order.OrderNo ถึงมือลูกค้าแล้ว?">
+                            <input type="hidden" name="orderNo" value="@order.OrderNo" />
+                            <input type="hidden" name="status" value="@OrderStatus.Delivered.ToCode()" />
+                            <input type="hidden" name="returnSection" value="mine" />
+                            <button class="lc-btn lc-btn--primary" type="submit"><i class="bi bi-check2-circle" aria-hidden="true"></i> ส่งสำเร็จ</button>
+                        </form>
+                        @if (order.PickedUpAt is { } picked)
+                        {
+                            <small class="lc-hint">รับของเมื่อ @picked.ToLocalTime().ToString("HH:mm น.", thai)</small>
+                        }
+                    }
+                    else
+                    {
+                        <form asp-controller="Orders" asp-action="MoveTo" method="post">
+                            <input type="hidden" name="orderNo" value="@order.OrderNo" />
+                            <input type="hidden" name="status" value="@OrderStatus.Delivering.ToCode()" />
+                            <input type="hidden" name="returnSection" value="mine" />
+                            <button class="lc-btn lc-btn--primary" type="submit"><i class="bi bi-bicycle" aria-hidden="true"></i> รับงานนี้</button>
+                        </form>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+}

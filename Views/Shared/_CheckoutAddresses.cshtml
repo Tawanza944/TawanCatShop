@@ -1,0 +1,28 @@
+@using WebApplication1.Domain.Addresses
+@model IReadOnlyList<WebApplication1.Models.UserAddress>
+
+@foreach (var address in Model)
+{
+    var region = address.Region?.Value;
+    var formatted = ThailandAddressCatalog.Format(region);
+    <div class="lc-checkout-address">
+        <label class="lc-address-option">
+            <input type="radio" name="savedAddress" value="@address.Id" checked="@address.IsDefault"
+                   data-label="@address.Label" data-name="@address.RecipientName" data-phone="@address.Phone"
+                   data-address="@address.AddressLine" data-province="@region?.ProvinceCode"
+                   data-district="@region?.DistrictCode" data-subdistrict="@region?.SubdistrictCode"
+                   data-postal="@region?.PostalCode" data-region-valid="@(formatted is null ? "false" : "true")" />
+            <span class="lc-address-option__text">
+                <span class="lc-address-option__top">
+                    <span class="lc-tag">@address.Label</span>
+                    <strong>@address.RecipientName</strong>
+                    <span class="lc-address-option__phone">@address.Phone</span>
+                </span>
+                <small>@address.AddressLine @formatted</small>
+            </span>
+        </label>
+        <button type="button" class="lc-btn lc-btn--ghost lc-btn--sm lc-danger-text" data-delete-address="@address.Id" aria-label="ลบที่อยู่ @address.Label">
+            <i class="bi bi-trash3" aria-hidden="true"></i> ลบ
+        </button>
+    </div>
+}

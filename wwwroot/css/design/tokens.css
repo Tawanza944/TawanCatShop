@@ -1,0 +1,143 @@
+/* LoveCat design tokens — every color, font, radius and spacing value lives here.
+   Components read the semantic layer (--lc-surface-*, --lc-text-*, --lc-action, ...) and never raw hex. */
+
+:root {
+    /* Palette: butter yellow, cocoa brown, warm cream, coral for sales */
+    --lc-yellow-100: #fff3d1;
+    --lc-yellow-200: #ffe9a8;
+    --lc-yellow-300: #ffe38a;
+    --lc-yellow-400: #ffd54f;
+    --lc-yellow-500: #f5c232;
+    --lc-yellow-600: #e8b92e;
+    --lc-cream-0: #ffffff;
+    --lc-cream-50: #fffbf0;
+    --lc-cream-100: #fff8e6;
+    --lc-sand-200: #f1e4c2;
+    --lc-sand-300: #e6d3a3;
+    --lc-sand-400: #d9c08a;
+    --lc-cocoa-400: #9a8460;
+    --lc-cocoa-500: #7a6648;
+    --lc-cocoa-700: #4a3a22;
+    --lc-cocoa-800: #3a2d1d;
+    --lc-cocoa-900: #2b2118;
+    --lc-coral-100: #fde3dc;
+    --lc-coral-500: #e2553d;
+    --lc-coral-600: #c4432d;
+    --lc-leaf-100: #e3f2d9;
+    --lc-leaf-700: #2f6b1a;
+    --lc-honey-100: #fff0c7;
+    --lc-honey-700: #8a5a00;
+    --lc-sky-100: #dfeefa;
+    --lc-sky-700: #1f5f8f;
+    --lc-berry-100: #fbe0dd;
+    --lc-berry-700: #a12a22;
+
+    /* Semantic: surfaces */
+    --lc-surface-page: var(--lc-cream-50);
+    --lc-surface-card: var(--lc-cream-0);
+    --lc-surface-field: var(--lc-cream-100);
+    --lc-surface-muted: var(--lc-yellow-100);
+    --lc-surface-brand: var(--lc-yellow-400);
+    --lc-surface-inverse: var(--lc-cocoa-900);
+
+    /* Semantic: text */
+    --lc-text: var(--lc-cocoa-900);
+    --lc-text-secondary: var(--lc-cocoa-700);
+    --lc-text-muted: var(--lc-cocoa-500);
+    --lc-text-faint: var(--lc-cocoa-400);
+    --lc-text-inverse: var(--lc-yellow-100);
+    --lc-text-on-brand: var(--lc-cocoa-900);
+    --lc-link: #8a4b12;
+    --lc-link-hover: var(--lc-cocoa-900);
+
+    /* Semantic: lines */
+    --lc-border: var(--lc-sand-200);
+    --lc-border-strong: var(--lc-sand-300);
+    --lc-border-dashed: var(--lc-sand-400);
+    --lc-border-ink: var(--lc-cocoa-900);
+
+    /* Semantic: actions. Primary = cocoa button with yellow label; highlight = yellow. */
+    --lc-action: var(--lc-cocoa-900);
+    --lc-action-hover: var(--lc-cocoa-700);
+    --lc-on-action: var(--lc-yellow-400);
+    --lc-highlight: var(--lc-yellow-400);
+    --lc-highlight-hover: var(--lc-yellow-500);
+    --lc-sale: var(--lc-coral-500);
+    --lc-sale-soft: var(--lc-coral-100);
+    --lc-focus-ring: 0 0 0 3px rgba(245, 194, 50, 0.55);
+
+    /* Semantic: status (order states, alerts) */
+    --lc-success-bg: var(--lc-leaf-100);
+    --lc-success-text: var(--lc-leaf-700);
+    --lc-warning-bg: var(--lc-honey-100);
+    --lc-warning-text: var(--lc-honey-700);
+    --lc-info-bg: var(--lc-sky-100);
+    --lc-info-text: var(--lc-sky-700);
+    --lc-danger-bg: var(--lc-berry-100);
+    --lc-danger-text: var(--lc-berry-700);
+
+    /* Typography */
+    --lc-font-body: "Anuphan", "Segoe UI", Tahoma, sans-serif;
+    --lc-font-display: "Mitr", "Anuphan", "Segoe UI", sans-serif;
+    --lc-font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --lc-weight-display: 600;
+    --lc-text-xs: 0.75rem;
+    --lc-text-sm: 0.875rem;
+    --lc-text-md: 1rem;
+    --lc-text-lg: 1.125rem;
+    --lc-text-xl: 1.375rem;
+    --lc-text-2xl: 1.75rem;
+    --lc-text-3xl: 2.25rem;
+    --lc-text-4xl: 3rem;
+    --lc-leading-body: 1.65;
+    --lc-leading-heading: 1.35;
+
+    /* Shape and space */
+    --lc-radius-sm: 8px;
+    --lc-radius-md: 14px;
+    --lc-radius-lg: 22px;
+    --lc-radius-round: 999px;
+    --lc-space-1: 0.25rem;
+    --lc-space-2: 0.5rem;
+    --lc-space-3: 0.75rem;
+    --lc-space-4: 1rem;
+    --lc-space-5: 1.5rem;
+    --lc-space-6: 2rem;
+    --lc-space-7: 3rem;
+    --lc-container: 1200px;
+    --lc-shadow-pop: 4px 4px 0 var(--lc-cocoa-900);
+
+    /* Motion */
+    --lc-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+    --lc-duration: 160ms;
+
+    /* Aliases kept for markup written before the design system (removed page by page) */
+    --lc-ink: var(--lc-text);
+    --lc-muted: var(--lc-text-muted);
+    --lc-paper: var(--lc-surface-page);
+    --lc-soft: var(--lc-surface-muted);
+    --lc-sage: var(--lc-yellow-200);
+    --lc-line: var(--lc-border);
+
+    /* Bootstrap 5.3 global variables mapped onto the LoveCat palette */
+    --bs-body-font-family: var(--lc-font-body);
+    --bs-body-line-height: var(--lc-leading-body);
+    --bs-body-color: var(--lc-text);
+    --bs-body-bg: var(--lc-surface-page);
+    --bs-secondary-color: var(--lc-text-muted);
+    --bs-tertiary-bg: var(--lc-surface-muted);
+    --bs-border-color: var(--lc-border);
+    --bs-border-color-translucent: var(--lc-border);
+    --bs-border-radius: var(--lc-radius-sm);
+    --bs-border-radius-sm: var(--lc-radius-sm);
+    --bs-border-radius-lg: var(--lc-radius-md);
+    --bs-border-radius-xl: var(--lc-radius-md);
+    --bs-border-radius-xxl: var(--lc-radius-lg);
+    --bs-link-color: var(--lc-link);
+    --bs-link-color-rgb: 138, 75, 18;
+    --bs-link-hover-color: var(--lc-link-hover);
+    --bs-link-hover-color-rgb: 43, 33, 24;
+    --bs-box-shadow: none;
+    --bs-box-shadow-sm: none;
+    --bs-box-shadow-lg: none;
+}

@@ -1,0 +1,54 @@
+@model CustomerCouponsModel
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+}
+<header class="lc-panel__head lc-panel__head--bare">
+    <h2 class="lc-desk-subhead">ใช้ได้ตอนนี้</h2>
+    <a class="lc-link" asp-controller="Home" asp-action="Promotion">ดูหน้าโปรโมชั่น</a>
+</header>
+
+@if (Model.Available.Count == 0)
+{
+    <div class="lc-empty-state lc-desk-empty">
+        <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sleeping)" />
+        <p class="lc-empty-state__title">ยังไม่มีคูปองที่เก็บไว้และใช้ได้ตอนนี้</p>
+    </div>
+}
+else
+{
+    <div class="lc-ticket-grid">
+        @foreach (var coupon in Model.Available)
+        {
+            <partial name="_CouponTicket" model="new CouponTicket(coupon, false, UseToShop: true)" />
+        }
+    </div>
+}
+
+<article class="lc-panel">
+    <header class="lc-panel__head">
+        <h2>โค้ดที่ใช้ไปแล้ว</h2>
+    </header>
+    @if (Model.History.Count == 0)
+    {
+        <p class="lc-hint">ยังไม่เคยใช้โค้ดส่วนลด</p>
+    }
+    else
+    {
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead><tr><th>โค้ด</th><th>ใช้กับออเดอร์</th><th>วันที่ใช้</th><th class="lc-num">ประหยัดไป</th></tr></thead>
+                <tbody>
+                    @foreach (var used in Model.History)
+                    {
+                        <tr>
+                            <td><span class="lc-tag lc-mono">@used.CouponCode</span></td>
+                            <td class="lc-mono">@(used.OrderNo ?? "—")</td>
+                            <td>@used.UsedAt.ToLocalTime().ToString("d MMM yyyy · HH:mm", thai)</td>
+                            <td class="lc-num lc-in"><strong>฿@used.DiscountAmount.ToString("N2")</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</article>

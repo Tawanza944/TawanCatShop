@@ -1,0 +1,33 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (OwnerRankingModel)Model.Model!;
+}
+@if (content.Products.Count == 0)
+{
+    <partial name="Sections/_Empty" model="@("ยังไม่มียอดขาย")" />
+}
+else
+{
+    <div class="lc-desk-grid lc-desk-grid--wide-left">
+        <article class="lc-panel">
+            <partial name="Sections/_Chart" model='content.Chart with { Kind = "hbar" }' />
+        </article>
+        <article class="lc-panel">
+            <ol class="lc-podium">
+                @for (var i = 0; i < content.Products.Count; i++)
+                {
+                    var p = content.Products[i];
+                    <li class="@(i < 3 ? "is-top" : null)">
+                        <span class="lc-podium__rank">@(i + 1)</span>
+                        <div>
+                            <strong>@p.Name</strong>
+                            <small>ขายได้ @p.Quantity ชิ้น</small>
+                        </div>
+                        <b>฿@p.Revenue.ToString("N0")</b>
+                    </li>
+                }
+            </ol>
+        </article>
+    </div>
+}

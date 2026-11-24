@@ -1,0 +1,37 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var admins = (Paged<OwnerAdminAccount>)Model.Model!;
+}
+
+<article class="lc-panel">
+    @if (admins.Items.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@("ไม่มีบัญชี Admin")" />
+    }
+    else
+    {
+        <div class="lc-table-wrap">
+            <table class="lc-table">
+                <thead><tr><th>ชื่อ</th><th>ชื่อผู้ใช้</th><th>ดำเนินการ</th></tr></thead>
+                <tbody>
+                    @foreach (var admin in admins.Items)
+                    {
+                        <tr>
+                            <td>@admin.Name</td>
+                            <td>@admin.Username</td>
+                            <td>
+                                <form asp-controller="Owner" asp-action="DemoteAdmin" method="post"
+                                      data-confirm="เปลี่ยนบัญชี @admin.Username จาก Admin เป็นลูกค้า?">
+                                    <input type="hidden" name="id" value="@admin.Id" />
+                                    <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">ลดสิทธิ์เป็นลูกค้า</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="Sections/_Pager" model='PagerModel.From(admins, "admin-access")' />
+    }
+</article>

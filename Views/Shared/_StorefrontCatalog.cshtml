@@ -1,0 +1,97 @@
+@model WebApplication1.ViewModels.Store.ProductListViewModel
+@{
+    var selected = Model.SelectedCategory;
+    var action = Model.Shop is null ? "Product" : "Shop";
+    var query = Model.Query;
+    var sortOptions = new (ProductSort Value, string Label)[]
+    {
+        (ProductSort.Recommended, "แนะนำ"),
+        (ProductSort.BestSelling, "ขายดี"),
+        (ProductSort.Newest, "มาใหม่"),
+        (ProductSort.PriceLow, "ราคาต่ำไปสูง"),
+        (ProductSort.PriceHigh, "ราคาสูงไปต่ำ")
+    };
+}
+
+    <div class="lc-catalog">
+        <aside class="lc-catalog__filters" aria-label="ตัวกรองสินค้า">
+            <div>
+                <h2>หมวดสินค้า</h2>
+                <nav class="lc-sidenav">
+                    <a asp-action="@action" asp-route-id="@Model.Shop?.Id" asp-route-search="@query.Search" asp-route-sort="@query.Sort" aria-current="@(selected is null ? "page" : null)">
+                        <span>ทั้งหมด</span><small>@Model.TotalProducts</small>
+                    </a>
+                    @foreach (var item in Model.Categories)
+                    {
+                        <a asp-action="@action" asp-route-id="@Model.Shop?.Id" asp-route-category="@item.Category.Key" asp-route-search="@query.Search" asp-route-sort="@query.Sort"
+                           aria-current="@(selected?.Key == item.Category.Key ? "page" : null)">
+                            <span>@item.Category.Label</span><small>@item.Count</small>
+                        </a>
+                    }
+                </nav>
+            </div>
+
+            <form asp-action="@action" method="get">
+                @if (Model.Shop is not null) { <input type="hidden" name="id" value="@Model.Shop.Id" /> }
+                <h2>ช่วงราคา (บาท)</h2>
+                <input type="hidden" name="category" value="@query.CategoryKey" />
+                <input type="hidden" name="search" value="@query.Search" />
+                <input type="hidden" name="sort" value="@query.Sort" />
+                <div class="lc-catalog__price">
+                    <input class="lc-input" type="number" name="minPrice" min="0" placeholder="ต่ำสุด" value="@query.MinPrice" aria-label="ราคาต่ำสุด" />
+                    <span>–</span>
+                    <input class="lc-input" type="number" name="maxPrice" min="0" placeholder="สูงสุด" value="@query.MaxPrice" aria-label="ราคาสูงสุด" />
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px">
+                    <button class="lc-btn lc-btn--secondary lc-btn--sm" type="submit">กรองราคา</button>
+                    <a class="lc-btn lc-btn--ghost lc-btn--sm" asp-action="@action" asp-route-id="@Model.Shop?.Id" asp-route-category="@query.CategoryKey">ล้าง</a>
+                </div>
+            </form>
+        </aside>
+
+        <section aria-label="รายการสินค้า">
+            <div class="lc-catalog__bar">
+                <p>พบ @Model.Products.Count รายการ</p>
+                <form asp-action="@action" method="get">
+                @if (Model.Shop is not null) { <input type="hidden" name="id" value="@Model.Shop.Id" /> }
+                    <input type="hidden" name="category" value="@query.CategoryKey" />
+                    <input type="hidden" name="search" value="@query.Search" />
+                    <input type="hidden" name="minPrice" value="@query.MinPrice" />
+                    <input type="hidden" name="maxPrice" value="@query.MaxPrice" />
+                    <label for="sort" class="lc-label">เรียงตาม</label>
+                    <select id="sort" name="sort" class="lc-select" onchange="this.form.requestSubmit()">
+                        @foreach (var option in sortOptions)
+                        {
+                            <option value="@option.Value" selected="@(query.Sort == option.Value)">@option.Label</option>
+                        }
+                    </select>
+                </form>
+            </div>
+
+            @if (Model.Products.Count == 0)
+            {
+                <div class="lc-card lc-empty-state">
+                    <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sleeping)" />
+                    @if (Model.Shop is not null && Model.TotalProducts == 0)
+                    {
+                        <p class="lc-empty-state__title">ร้านนี้ยังไม่มีสินค้า</p>
+                    }
+                    else
+                    {
+                        <p class="lc-empty-state__title">ยังไม่มีสินค้าที่ตรงกับที่ค้นหา</p>
+                        <a class="lc-btn lc-btn--primary lc-btn--sm" asp-action="@action" asp-route-id="@Model.Shop?.Id">ดูสินค้าทั้งหมด</a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="lc-product-grid">
+                    @foreach (var product in Model.Products)
+                    {
+                        <partial name="_ProductCard" model="product" />
+                    }
+                </div>
+            }
+        </section>
+    </div>
+

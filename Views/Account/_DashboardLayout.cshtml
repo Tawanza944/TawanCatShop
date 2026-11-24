@@ -1,0 +1,70 @@
+@model DashboardPage
+@using WebApplication1.ViewComponents
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = $"{Model.Title} · {Model.Role.WorkspaceTitle}";
+    ViewData["LayoutVariant"] = LayoutVariant.Compact;
+}
+
+<div class="lc-desk">
+    <partial name="_DashboardSidebar" model="new DashboardSidebar(Model.Role, Model.Menu, Model.Section, Model.DisplayName)" />
+
+    <section class="lc-desk__main">
+        @if (Model.Greeting is { } greeting)
+        {
+            <div class="lc-hello">
+                <div class="lc-hello__text">
+                    <p class="lc-eyebrow">@DateTime.Now.ToString("dddd d MMMM", new System.Globalization.CultureInfo("th-TH"))</p>
+                    <h1>@greeting.Title</h1>
+                    <p>@greeting.Message</p>
+                    <div class="lc-hello__actions">
+                        @foreach (var action in greeting.Actions)
+                        {
+                            <a class="lc-btn @(action.Primary ? "lc-btn--primary" : "lc-btn--outline")"
+                               asp-controller="Account" asp-action="@WebApplication1.ViewModels.Dashboard.DashboardRoutes.ActionFor(action.Section)">@action.Label</a>
+                        }
+                    </div>
+                </div>
+                <partial name="_CatIllustration" model='new CatIllustration(CatPose.Peeking, CssClass: "lc-hello__cat")' />
+            </div>
+        }
+        else
+        {
+            <header class="lc-desk__head">
+                <p class="lc-eyebrow">@Model.Role.WorkspaceTitle</p>
+                <h1>@Model.Title</h1>
+                @if (!string.IsNullOrEmpty(Model.Subtitle))
+                {
+                    <p>@Model.Subtitle</p>
+                }
+            </header>
+        }
+
+        @if (Model.Metrics.Count > 0)
+        {
+            <div class="lc-tiles @(Model.Metrics.Count == 3 ? "lc-tiles--three" : null)">
+                @foreach (var tile in Model.Metrics)
+                {
+                    <div class="lc-tile @(tile.Alert ? "lc-tile--alert" : null)">
+                        <i class="bi @(tile.Icon) lc-site-icon lc-tile__icon lc-site-icon--52" aria-hidden="true"></i>
+                        <span class="lc-tile__label">@tile.Label</span>
+                        <strong class="lc-tile__value">@tile.Value</strong>
+                        @if (!string.IsNullOrEmpty(tile.Note))
+                        {
+                            <span class="lc-tile__note @(tile.Up == true ? "is-up" : tile.Up == false ? "is-down" : null)">@tile.Note</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        @RenderBody()
+    </section>
+</div>
+
+<partial name="Sections/_ConfirmDialog" />
+
+@section Scripts {
+    <script src="~/lib/chartjs/chart.umd.min.js"></script>
+    <script type="module" src="~/js/app/backoffice.js" asp-append-version="true"></script>
+}

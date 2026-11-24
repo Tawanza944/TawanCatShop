@@ -1,0 +1,48 @@
+@model DashboardSidebar
+@using WebApplication1.ViewComponents
+@inject WebApplication1.Services.Identity.ICurrentUserService CurrentUser
+@{
+    var initial = string.IsNullOrEmpty(Model.DisplayName) ? "?" : Model.DisplayName[..1].ToUpperInvariant();
+}
+
+<aside class="lc-desk__side" aria-label="เมนูหลังร้าน">
+    <div class="lc-desk__who">
+        @if (!string.IsNullOrEmpty(CurrentUser.AvatarUrl))
+        {
+            <img class="lc-desk__avatar" src="@CurrentUser.AvatarUrl" alt="" />
+        }
+        else
+        {
+            <span class="lc-desk__avatar lc-desk__avatar--initial" aria-hidden="true">@initial</span>
+        }
+        <div>
+            <strong>@Model.DisplayName</strong>
+            <span><i class="bi @Model.Role.Icon" aria-hidden="true"></i> @Model.Role.ThaiName</span>
+        </div>
+    </div>
+
+    <nav class="lc-desk__menu">
+        <p class="lc-desk__menu-label">@Model.Role.WorkspaceTitle</p>
+        @foreach (var item in Model.Menu)
+        {
+            <a asp-controller="Account" asp-action="@WebApplication1.ViewModels.Dashboard.DashboardRoutes.ActionFor(item.Key)"
+               aria-current="@(item.Key == Model.Section ? "page" : null)">
+                <i class="bi @item.Icon" aria-hidden="true"></i>
+                <span>@item.Title</span>
+                @if (item.Badge > 0)
+                {
+                    <b class="lc-desk__badge @(item.Key == "order-status" ? "lc-desk__badge--payout" : null)">@(item.Badge > 99 ? "99+" : item.Badge.ToString())</b>
+                }
+            </a>
+        }
+
+        <p class="lc-desk__menu-label">บัญชีของฉัน</p>
+        <a asp-controller="Account" asp-action="Profile" aria-current="@(Model.Section == DashboardSidebar.ProfileSection ? "page" : null)"><i class="bi bi-person-gear" aria-hidden="true"></i><span>ข้อมูลส่วนตัว</span></a>
+        <a asp-controller="Home" asp-action="Index"><i class="bi bi-shop-window" aria-hidden="true"></i><span>กลับไปหน้าร้าน</span></a>
+    </nav>
+
+    <div class="lc-desk__nap">
+        <partial name="_CatIllustration" model='new CatIllustration(CatPose.Sleeping, CssClass: "lc-desk__cat")' />
+        <small>@(Model.Menu.Sum(m => m.Badge) == 0 ? "งานเคลียร์หมดแล้ว แมวเลยหลับ" : "ยังมีงานรออยู่ แมวรอเป็นเพื่อน")</small>
+    </div>
+</aside>

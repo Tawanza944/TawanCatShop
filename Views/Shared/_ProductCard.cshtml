@@ -1,0 +1,59 @@
+@model WebApplication1.ViewModels.Store.ProductCard
+@{
+    var snapshot = System.Text.Json.JsonSerializer.Serialize(new { id = Model.Id, name = Model.Name, price = Model.Price, image = Model.ImageUrl, stock = Model.Stock });
+}
+<article class="lc-product @(Model.InStock ? null : "is-sold-out")" data-product="@snapshot" data-product-id="@Model.Id">
+    <a class="lc-product__media" asp-controller="Home" asp-action="ProductDetail" asp-route-id="@Model.Id">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="@Model.Name" loading="lazy" />
+        }
+        else
+        {
+            <span class="lc-product__placeholder"><partial name="_CatIllustration" model="new CatIllustration(CatPose.Sitting)" /></span>
+        }
+        @if (Model.Badge != ProductBadge.None)
+        {
+            <span class="lc-stamp lc-product__stamp @(Model.Badge == ProductBadge.Sale ? "lc-stamp--sale" : Model.Badge == ProductBadge.New ? "lc-stamp--plain" : null)">@Model.BadgeLabel</span>
+        }
+        @if (!Model.InStock)
+        {
+            <span class="lc-product__soldout">หมดชั่วคราว</span>
+        }
+    </a>
+    <button type="button" class="lc-product__heart" data-toggle-wishlist aria-pressed="false" aria-label="เก็บ @Model.Name ไว้ในรายการโปรด"><i class="bi bi-heart" aria-hidden="true"></i></button>
+
+    <div class="lc-product__body">
+        @if (Model.Category is not null)
+        {
+            <a class="lc-product__category" asp-controller="Home" asp-action="Product" asp-route-category="@Model.Category.Key">@Model.Category.Label</a>
+        }
+        <partial name="_StorefrontSeller" model="Model" />
+        <partial name="_FlashSaleLabel" model="Model" />
+        <h3 class="lc-product__name"><a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@Model.Id">@Model.Name</a></h3>
+        <p class="lc-product__meta">
+            @if (Model.ReviewCount > 0)
+            {
+                <span><i class="bi bi-star-fill" aria-hidden="true"></i>@Model.Rating.ToString("0.0") (@Model.ReviewCount)</span>
+            }
+            else
+            {
+                <span>ยังไม่มีรีวิว</span>
+            }
+            @if (Model.Sold > 0)
+            {
+                <span>ขายแล้ว @Model.Sold</span>
+            }
+        </p>
+        <div class="lc-product__foot">
+            <span class="lc-price-tag @(Model.OnSale ? "lc-price-tag--sale" : null)">
+                <span class="lc-price-tag__now">฿@Model.Price.ToString(Model.FlashEndsAt.HasValue ? "N2" : "N0")</span>
+                @if (Model.OnSale)
+                {
+                    <span class="lc-price-tag__was">฿@Model.OriginalPrice!.Value.ToString("N0")</span>
+                }
+            </span>
+            <button type="button" class="lc-product__add" data-add-to-cart @(Model.InStock ? null : "disabled") aria-label="ใส่ @Model.Name ลงตะกร้า"><i class="bi bi-plus-lg" aria-hidden="true"></i></button>
+        </div>
+    </div>
+</article>

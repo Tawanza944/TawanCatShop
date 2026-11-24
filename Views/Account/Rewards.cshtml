@@ -1,0 +1,11 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var reward = (WebApplication1.Domain.Pricing.LoyaltyBalance)Model.Model!;
+}
+<section class="lc-panel">
+    <h2>ใช้ได้ ฿@reward.Available.ToString("N2")</h2>
+    <p>สะสมไปแล้ว ฿@reward.Progress.ToString("N2") จาก ฿1,000</p>
+    <progress max="1000" value="@reward.Progress.ToString(System.Globalization.CultureInfo.InvariantCulture)" aria-label="ความคืบหน้าเงินสะสม"></progress>
+    <p>ซื้ออีก ฿@reward.UntilNext.ToString("N2") จะได้เงินสะสมเพิ่ม ฿1</p>
+</section>

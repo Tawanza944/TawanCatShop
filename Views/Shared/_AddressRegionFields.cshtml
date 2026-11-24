@@ -1,0 +1,15 @@
+<div class="lc-field--wide row g-2" data-address-region data-source="@Url.Content("~/data/thailand-addresses.json")">
+    <label class="lc-field col-sm-6"><span class="lc-label">จังหวัด</span>
+        <select class="lc-input" name="ProvinceCode" required><option value="">เลือกจังหวัด</option></select>
+    </label>
+    <label class="lc-field col-sm-6"><span class="lc-label">อำเภอ / เขต</span>
+        <select class="lc-input" name="DistrictCode" required><option value="">เลือกอำเภอ / เขต</option></select>
+    </label>
+    <label class="lc-field col-sm-6"><span class="lc-label">ตำบล / แขวง</span>
+        <select class="lc-input" name="SubdistrictCode" required><option value="">เลือกตำบล / แขวง</option></select>
+    </label>
+    <label class="lc-field col-sm-6"><span class="lc-label">รหัสไปรษณีย์</span>
+        <select class="lc-input" name="PostalCode" required><option value="">เลือกรหัสไปรษณีย์</option></select>
+    </label>
+    <p class="lc-hint" data-address-region-error hidden aria-live="polite"></p>
+</div>

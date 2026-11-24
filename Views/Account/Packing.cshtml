@@ -1,0 +1,32 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (ShopQueueModel)Model.Model!;
+}
+@{
+    var steps = new[] { OrderStatus.Pending, OrderStatus.Packing, OrderStatus.Ready };
+    var all = content.Counts.Values.Sum();
+}
+<nav class="lc-chip-row" aria-label="กรองตามสถานะ">
+    <a class="lc-pill" asp-controller="Account" asp-action="Packing"
+       aria-current="@(string.IsNullOrEmpty(content.StatusFilter) ? "page" : null)">ทั้งหมด <b>@all</b></a>
+    @foreach (var status in steps)
+    {
+        <a class="lc-pill" asp-controller="Account" asp-action="Packing" asp-route-filter="@status.ToCode()"
+           aria-current="@(content.StatusFilter == status.ToCode() ? "page" : null)">@status.ToThai() <b>@content.Counts.GetValueOrDefault(status)</b></a>
+    }
+</nav>
+
+@if (content.Orders.Count == 0)
+{
+    <partial name="Sections/_Empty" model="@("ไม่มีออเดอร์ค้าง แมวนอนได้")" />
+}
+else
+{
+    <div class="lc-pack-list">
+        @foreach (var order in content.Orders)
+        {
+            <partial name="Sections/_PackCard" model="order" />
+        }
+    </div>
+}

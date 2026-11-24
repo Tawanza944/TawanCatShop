@@ -1,0 +1,23 @@
+@model OwnerOverviewModel
+<article class="lc-panel">
+    <header class="lc-panel__head">
+        <h2>ยอดขาย 30 วัน</h2>
+        <a class="lc-link" asp-controller="Account" asp-action="Sales">ดูรายวัน</a>
+    </header>
+    <partial name="Sections/_Chart" model="Model.Revenue" />
+</article>
+
+<article class="lc-panel">
+    <header class="lc-panel__head">
+        <h2>5 อันดับสินค้าทำเงิน</h2>
+        <a class="lc-link" asp-controller="Account" asp-action="Ranking">ดูทั้งหมด</a>
+    </header>
+    @if (Model.TopProducts.Values.Count == 0)
+    {
+        <p class="lc-hint">ยังไม่มียอดขาย</p>
+    }
+    else
+    {
+        <partial name="Sections/_Chart" model='Model.TopProducts with { Kind = "hbar" }' />
+    }
+</article>

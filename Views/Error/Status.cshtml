@@ -1,0 +1,15 @@
+@model WebApplication1.ViewModels.Shared.StatusPageModel
+@using WebApplication1.ViewModels.Shared
+
+<section class="lc-status-page lc-container">
+    <div class="lc-status-page__art">
+        <partial name="_CatIllustration" model="new CatIllustration(Model.Pose)" />
+    </div>
+    <span class="lc-status-page__code">@Model.StatusCode</span>
+    <h1>@Model.Title</h1>
+    <p>@Model.Message</p>
+    <div class="lc-status-page__actions">
+        <a class="lc-btn lc-btn--primary" asp-controller="Home" asp-action="Index">กลับหน้าแรก</a>
+        <a class="lc-btn lc-btn--outline" asp-controller="Home" asp-action="Product">ดูสินค้าทั้งหมด</a>
+    </div>
+</section>

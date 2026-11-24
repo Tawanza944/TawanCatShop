@@ -1,0 +1,40 @@
+@model WebApplication1.ViewComponents.NavbarViewModel
+
+<header class="lc-nav lc-nav--compact">
+    <div class="lc-container lc-nav__inner">
+        <a class="lc-wordmark lc-nav__brand" asp-controller="Home" asp-action="Index" aria-label="LoveCat หน้าแรก">L<span class="lc-wordmark__o">o</span>veCat</a>
+
+        <div class="lc-nav__tools">
+            <a class="lc-nav__back" asp-controller="Home" asp-action="Index"><i class="bi bi-arrow-left" aria-hidden="true"></i>กลับไปหน้าร้าน</a>
+
+            @if (Model.IsAuthenticated && Model.Role is not null)
+            {
+                <div class="dropdown">
+                    <button class="lc-nav__account" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        @if (Model.AvatarUrl is not null)
+                        {
+                            <img class="lc-avatar" src="@Model.AvatarUrl" alt="" />
+                        }
+                        else
+                        {
+                            <span class="lc-avatar lc-avatar--initial" aria-hidden="true">@(Model.DisplayName?.Trim().FirstOrDefault())</span>
+                        }
+                        <span class="lc-nav__account-name">@Model.DisplayName</span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end lc-nav__menu">
+                        <li class="lc-nav__menu-head">@Model.DisplayName<span>@Model.Role.ThaiName</span></li>
+                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Index"><i class="bi @Model.Role.Icon" aria-hidden="true"></i>@Model.Role.WorkspaceTitle</a></li>
+                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="bi bi-person" aria-hidden="true"></i>บัญชีของฉัน</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <form asp-controller="Home" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>ออกจากระบบ</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+</header>

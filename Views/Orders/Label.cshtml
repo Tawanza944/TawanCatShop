@@ -1,0 +1,75 @@
+@model Order
+@inject Microsoft.Extensions.Options.IOptions<WebApplication1.Options.StoreInfoOptions> StoreInfo
+@{
+    Layout = null;
+    var store = StoreInfo.Value;
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    var isCod = Model.PaymentMethod == PaymentMethod.CashOnDelivery.ToThai();
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <title>ใบปะหน้า @Model.OrderNo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;600&family=Mitr:wght@500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/design/label.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="toolbar">
+        <button type="button" data-print>พิมพ์ใบปะหน้า</button>
+        <span>ขนาด A6 (10 × 15 ซม.) ตั้งค่าเครื่องพิมพ์ให้ไม่มีขอบ</span>
+    </div>
+
+    <main class="label">
+        <header class="label__head">
+            <div class="label__brand">LoveCat</div>
+            <div class="label__no">
+                <small>เลขออเดอร์</small>
+                <strong>@Model.OrderNo</strong>
+            </div>
+        </header>
+
+        <section class="label__to">
+            <small>ผู้รับ</small>
+            <p class="label__name">@Model.CustomerName</p>
+            <p class="label__phone">โทร @Model.CustomerPhone</p>
+            <p class="label__address">@Model.ShippingAddress</p>
+        </section>
+
+        <section class="label__from">
+            <small>ผู้ส่ง</small>
+            <p><strong>@store.Name</strong> · @store.Phone<br />@store.Address</p>
+        </section>
+
+        <section class="label__meta">
+            <div class="@(isCod ? "is-cod" : null)">
+                <small>@(isCod ? "เก็บเงินปลายทาง" : "ชำระแล้ว")</small>
+                <strong>@(isCod ? "฿" + Model.TotalAmount.ToString("N0") : Model.PaymentMethod)</strong>
+            </div>
+            <div>
+                <small>จำนวน</small>
+                <strong>@Model.Items.Sum(i => i.Quantity) ชิ้น</strong>
+            </div>
+            <div>
+                <small>วันที่สั่ง</small>
+                <strong>@Model.CreatedAt.ToLocalTime().ToString("d MMM yy", thai)</strong>
+            </div>
+        </section>
+
+        <section class="label__items">
+            <small>รายการในกล่อง</small>
+            <ol>
+                @foreach (var item in Model.Items)
+                {
+                    <li><span>@item.ProductName</span><b>× @item.Quantity</b></li>
+                }
+            </ol>
+        </section>
+
+        <footer class="label__foot">ขอบคุณที่อุดหนุน ฝากกอดน้องแมวด้วยนะ ♡</footer>
+    </main>
+
+    <script src="~/js/label.js" asp-append-version="true"></script>
+</body>
+</html>

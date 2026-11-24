@@ -1,0 +1,177 @@
+@using WebApplication1.Models
+@model CustomerOrdersModel
+@using System.Text.Json
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    var steps = new[] { "สั่งซื้อแล้ว", "ร้านแพ็กของ", "กำลังจัดส่ง", "ได้รับของ" };
+    var empty = Model.Mode == "tracking" ? "ไม่มีพัสดุที่กำลังมา" : "ยังไม่เคยสั่งซื้อ ลองเลือกของให้น้องดูไหม";
+}
+@if (Model.Mode == "overview")
+{
+    <header class="lc-panel__head lc-panel__head--bare">
+        <h2 class="lc-desk-subhead">คำสั่งซื้อล่าสุด</h2>
+        <a class="lc-link" asp-controller="Account" asp-action="Orders">ดูทั้งหมด</a>
+    </header>
+}
+
+@if (Model.Orders.Count == 0)
+{
+    <div class="lc-empty-state lc-desk-empty">
+        <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sitting)" />
+        <p class="lc-empty-state__title">@empty</p>
+        <a class="lc-btn lc-btn--primary" asp-controller="Home" asp-action="Product">ไปเลือกสินค้า</a>
+    </div>
+}
+else
+{
+    <div class="lc-order-list">
+        @foreach (var order in Model.Orders)
+        {
+            var step = order.Status == OrderStatus.Delivered ? steps.Length + 1 : order.Status.ToStepIndex();
+            var cancelled = order.Status == OrderStatus.Cancelled;
+            <article class="lc-order @(cancelled ? "is-cancelled" : null)">
+                <header class="lc-order__head">
+                    <div>
+                        <strong class="lc-mono">@order.OrderNo</strong>
+                        @if (order.Marketplace?.Shop is { } shop) { <small>@shop.Name</small> }
+                        <small>สั่งเมื่อ @order.CreatedAt.ToLocalTime().ToString("d MMM yyyy · HH:mm น.", thai)</small>
+                    </div>
+                    <span class="@StatusTone.CssClass(order.Status)">@order.StatusThai</span>
+                </header>
+
+                @if (!cancelled)
+                {
+                    <ol class="lc-stepper" aria-label="สถานะพัสดุ">
+                        @for (var i = 0; i < steps.Length; i++)
+                        {
+                            <li class="@(i + 1 < step ? "is-done" : i + 1 == step ? "is-current" : null)"
+                                aria-current="@(i + 1 == step ? "step" : null)">@steps[i]</li>
+                        }
+                    </ol>
+                }
+
+                <ul class="lc-items lc-items--customer">
+                    @foreach (var item in order.Items)
+                    {
+                        var snapshot = Model.Products.GetValueOrDefault(item.ProductId);
+                        <li>
+                            @if (!string.IsNullOrEmpty(item.ProductImage))
+                            {
+                                <img src="@item.ProductImage" alt="" loading="lazy" />
+                            }
+                            else
+                            {
+                                <span class="lc-items__ph"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                            }
+                            <span class="lc-items__name">
+                                @if (snapshot is not null)
+                                {
+                                    <a class="lc-link" asp-controller="Home" asp-action="ProductDetail" asp-route-id="@item.ProductId">@item.ProductName</a>
+                                }
+                                else
+                                {
+                                    @item.ProductName
+                                }
+                                <small>฿@item.UnitPrice.ToString("N0") × @item.Quantity</small>
+                            </span>
+                            <span class="lc-items__price">฿@item.TotalPrice.ToString("N0")</span>
+                            <span class="lc-items__actions">
+                                @if (order.Status == OrderStatus.Delivered && Model.ReviewableProductIds.Contains(item.ProductId))
+                                {
+                                    <a class="lc-btn lc-btn--outline lc-btn--sm" asp-controller="Home" asp-action="ProductDetail" asp-route-id="@item.ProductId" asp-fragment="reviews">
+                                        <i class="bi bi-star" aria-hidden="true"></i> รีวิว
+                                    </a>
+                                }
+                                @if (snapshot is { Stock: > 0 } && (order.Status == OrderStatus.Delivered || cancelled))
+                                {
+                                    <span data-product='@JsonSerializer.Serialize(new { id = snapshot.Id, name = snapshot.Name, price = snapshot.Price, image = snapshot.ImageUrl, stock = snapshot.Stock })'>
+                                        <button type="button" class="lc-btn lc-btn--ghost lc-btn--sm" data-add-to-cart><i class="bi bi-arrow-repeat" aria-hidden="true"></i> ซื้ออีก</button>
+                                    </span>
+                                }
+                            </span>
+                        </li>
+                    }
+                </ul>
+
+                <footer class="lc-order__foot">
+                    <dl class="lc-order__money">
+                        <div><dt>ค่าสินค้า</dt><dd>฿@order.Subtotal.ToString("N0")</dd></div>
+                        @if (order.Discount > 0)
+                        {
+                            <div class="is-discount"><dt>ส่วนลด @order.CouponCode</dt><dd>−฿@order.Discount.ToString("N0")</dd></div>
+                        }
+                        <div><dt>ค่าส่ง</dt><dd>@(order.ShippingFee == 0 ? "ฟรี" : "฿" + order.ShippingFee.ToString("N0"))</dd></div>
+                        <div class="is-total"><dt>รวม (@order.PaymentMethod)</dt><dd>฿@order.TotalAmount.ToString("N0")</dd></div>
+                    </dl>
+                    <div class="lc-order__ship">
+                        <div class="lc-order__block">
+                            <small class="lc-order__label"><i class="bi bi-geo-alt" aria-hidden="true"></i> ส่งถึง</small>
+                            <p><strong>@order.CustomerName</strong> · @order.CustomerPhone</p>
+                            <p class="lc-order__address">@order.ShippingAddress</p>
+                        </div>
+                        @if (ShipmentInfo.For(order) is { } shipment)
+                        {
+                            <partial name="_ShipmentInfo" model="shipment" />
+                        }
+                        @if (order.Marketplace?.Payment is { } payment)
+                        {
+                            var (paymentText, paymentTone) = payment.Status switch
+                            {
+                                PaymentReview.Confirmed => ("ชำระแล้ว", "success"),
+                                PaymentReview.Rejected => ("ขอส่งสลิปใหม่", "danger"),
+                                PaymentReview.Cancelled => ("ยกเลิกแล้ว", "danger"),
+                                _ => ("รอฝ่ายบัญชีตรวจสลิป", "warning")
+                            };
+                            <div class="lc-order__block lc-order__payment">
+                                <small class="lc-order__label"><i class="bi bi-receipt" aria-hidden="true"></i> การชำระเงิน</small>
+                                <div class="lc-order__payment-row">
+                                    <span>ยอดชำระรวม <strong>฿@payment.Total.ToString("N2")</strong></span>
+                                    <span class="lc-status lc-status--@paymentTone">@paymentText</span>
+                                </div>
+                                <a class="lc-btn lc-btn--outline lc-btn--sm" asp-controller="Payments" asp-action="BasketSlip" asp-route-id="@payment.Id">
+                                    <i class="bi bi-image" aria-hidden="true"></i> ดูสลิปชำระเงิน
+                                </a>
+                                @if (payment.Status is PaymentReview.Rejected or PaymentReview.Cancelled)
+                                {
+                                    <p class="lc-order__reason">@payment.Reason</p>
+                                }
+                                @if (payment.Status == PaymentReview.Rejected)
+                                {
+                                    <form class="lc-order__resubmit" asp-controller="Payments" asp-action="Resubmit" method="post" enctype="multipart/form-data">
+                                        <input type="hidden" name="id" value="@payment.Id" />
+                                        <label class="lc-field"><span class="lc-label">แนบสลิปใหม่ (JPG หรือ PNG)</span>
+                                            <input class="lc-input" type="file" name="slip" accept="image/jpeg,image/png" required /></label>
+                                        <button class="lc-btn lc-btn--primary lc-btn--sm" type="submit">ส่งสลิปใหม่</button>
+                                    </form>
+                                }
+                            </div>
+                        }
+                        @if (order.Status == OrderStatus.Delivering && order.Marketplace is { RiderDelivery: false })
+                        {
+                            <form asp-controller="Orders" asp-action="MoveTo" method="post">
+                                <input type="hidden" name="orderNo" value="@order.OrderNo" />
+                                <input type="hidden" name="status" value="delivered" />
+                                <input type="hidden" name="returnSection" value="orders" />
+                                <button class="lc-btn lc-btn--primary lc-btn--sm" type="submit">ยืนยันได้รับสินค้า</button>
+                            </form>
+                        }
+                        @if (order.Status == OrderStatus.Pending && order.Marketplace?.PaymentId is null)
+                        {
+                            <form asp-controller="Orders" asp-action="Cancel" method="post"
+                                  data-confirm="ยกเลิกออเดอร์ @order.OrderNo? ถ้าใช้โค้ดส่วนลดไว้ จะได้สิทธิ์คืน">
+                                <input type="hidden" name="orderNo" value="@order.OrderNo" />
+                                <input type="hidden" name="returnSection" value="@(Model.Mode == "overview" ? "overview" : Model.Mode)" />
+                                <button class="lc-btn lc-btn--ghost lc-btn--sm lc-danger-text" type="submit">ยกเลิกคำสั่งซื้อ</button>
+                            </form>
+                        }
+                    </div>
+                </footer>
+            </article>
+        }
+    </div>
+
+    @if (Model.Page is { } page)
+    {
+        <partial name="Sections/_Pager" model='PagerModel.From(page, "orders")' />
+    }
+}

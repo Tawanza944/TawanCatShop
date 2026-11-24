@@ -1,0 +1,126 @@
+@model AdminCouponsModel
+@using System.Text.Json
+@{
+    var thai = new System.Globalization.CultureInfo("th-TH");
+    string ValueText(Coupon c) => c.DiscountType switch
+    {
+        CouponTypes.Percent => $"{c.DiscountValue:0.#}%",
+        CouponTypes.FreeShipping => "ส่งฟรี",
+        _ => $"฿{c.DiscountValue:N0}"
+    };
+}
+<div class="lc-toolbar lc-toolbar--bare">
+    <p class="lc-hint">ลูกค้าแต่ละคนใช้โค้ดเดียวกันได้ครั้งเดียว · โค้ดที่ปิดหรือหมดอายุจะไม่แสดงหน้าโปรโมชั่น</p>
+    <button type="button" class="lc-btn lc-btn--primary" data-bs-toggle="modal" data-bs-target="#couponModal">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i> สร้างโค้ดใหม่
+    </button>
+</div>
+
+@if (Model.Coupons.Count == 0)
+{
+    <partial name="Sections/_Empty" model="@("ยังไม่มีโค้ดส่วนลด ลองสร้างโค้ดแรกดู")" />
+}
+else
+{
+    <div class="lc-admin-tickets">
+        @foreach (var coupon in Model.Coupons)
+        {
+            var expired = coupon.ExpiresAt is { } at && at < DateTime.UtcNow;
+            var used = Model.UsageCounts.GetValueOrDefault(coupon.Code);
+            var fill = JsonSerializer.Serialize(new
+            {
+                coupon.Id, coupon.Code, coupon.Name, Description = coupon.Description ?? "", coupon.DiscountType,
+                DiscountValue = coupon.DiscountValue.ToString("0.##"), MinSpend = coupon.MinSpend.ToString("0.##"),
+                MaxDiscount = coupon.MaxDiscount?.ToString("0.##") ?? "",
+                Categories = coupon.ApplicableCategoryList,
+                ExpiresAt = coupon.ExpiresAt?.ToLocalTime().ToString("yyyy-MM-ddTHH:mm") ?? "",
+                coupon.IsActive
+            });
+            <article class="lc-ticket lc-admin-ticket @(!coupon.IsActive || expired ? "lc-ticket--used" : null)">
+                <div class="lc-ticket__body">
+                    <p class="lc-ticket__value">@ValueText(coupon)</p>
+                    <p class="lc-admin-ticket__name">@coupon.Name</p>
+                    <p class="lc-ticket__terms">
+                        @(coupon.MinSpend > 0 ? $"ขั้นต่ำ ฿{coupon.MinSpend:N0}" : "ไม่มีขั้นต่ำ")
+                        @if (coupon.MaxDiscount is > 0)
+                        {
+                            <text> · ลดสูงสุด ฿@coupon.MaxDiscount.Value.ToString("N0")</text>
+                        }
+                    </p>
+                    <p class="lc-ticket__terms">
+                        @(coupon.ApplicableCategoryList.Count == 0 ? "ใช้ได้ทุกหมวด" : "เฉพาะ " + string.Join(", ", coupon.ApplicableCategoryList))
+                    </p>
+                    <p class="lc-ticket__expiry">
+                        @(coupon.ExpiresAt is { } expires ? (expired ? "หมดอายุแล้ว " : "ถึง ") + expires.ToLocalTime().ToString("d MMM yyyy", thai) : "ไม่มีวันหมดอายุ")
+                        · ใช้ไป @used ครั้ง
+                    </p>
+                </div>
+                <div class="lc-ticket__stub">
+                    <span class="lc-ticket__code">@coupon.Code</span>
+                    <span class="lc-status @(coupon.IsActive && !expired ? "lc-status--success" : "lc-status--neutral")">@(expired ? "หมดอายุ" : coupon.IsActive ? "เปิดอยู่" : "ปิดอยู่")</span>
+                    <div class="lc-admin-ticket__actions">
+                        <button type="button" class="lc-btn lc-btn--ghost lc-btn--sm" data-bs-toggle="modal" data-bs-target="#couponModal"
+                                data-fill="@fill" data-fill-title="แก้ไขโค้ด @coupon.Code" aria-label="แก้ไข @coupon.Code"><i class="bi bi-pencil" aria-hidden="true"></i></button>
+                        <form asp-controller="Admin" asp-action="ToggleCoupon" method="post">
+                            <input type="hidden" name="id" value="@coupon.Id" />
+                            <button class="lc-btn lc-btn--ghost lc-btn--sm" type="submit" aria-label="@(coupon.IsActive ? "ปิด" : "เปิด") @coupon.Code">
+                                <i class="bi @(coupon.IsActive ? "bi-pause-circle" : "bi-play-circle")" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                        <form asp-controller="Admin" asp-action="DeleteCoupon" method="post" data-confirm="ลบโค้ด @coupon.Code? ลูกค้าที่เก็บไว้จะใช้ไม่ได้อีก">
+                            <input type="hidden" name="id" value="@coupon.Id" />
+                            <button class="lc-btn lc-btn--ghost lc-btn--sm lc-danger-text" type="submit" aria-label="ลบ @coupon.Code"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+}
+
+<div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalTitle" aria-hidden="true" data-fill-form>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <form class="modal-content" asp-controller="Admin" asp-action="SaveCoupon" method="post">
+            <div class="modal-header">
+                <h2 class="modal-title" id="couponModalTitle" data-fill-heading="สร้างโค้ดส่วนลด">สร้างโค้ดส่วนลด</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body lc-form-grid">
+                <input type="hidden" name="Id" value="0" />
+                <label class="lc-field"><span class="lc-label">โค้ด</span><input class="lc-input lc-input--code" name="Code" required pattern="[A-Za-z0-9]{3,50}" placeholder="MEOW50" /></label>
+                <label class="lc-field"><span class="lc-label">ชื่อโปรโมชั่น</span><input class="lc-input" name="Name" required maxlength="255" placeholder="ลด 50 บาท สมาชิกใหม่" /></label>
+                <label class="lc-field lc-field--wide"><span class="lc-label">รายละเอียด (แสดงบนตั๋วหน้าโปรโมชั่น)</span><input class="lc-input" name="Description" maxlength="500" /></label>
+                <label class="lc-field"><span class="lc-label">ประเภทส่วนลด</span>
+                    <select class="lc-select" name="DiscountType">
+                        @foreach (var type in CouponTypes.All)
+                        {
+                            <option value="@type">@CouponTypes.ToThai(type)</option>
+                        }
+                    </select>
+                </label>
+                <label class="lc-field"><span class="lc-label">มูลค่า (บาท หรือ %)</span><input class="lc-input" type="number" name="DiscountValue" min="0" step="0.01" value="0" /></label>
+                <label class="lc-field"><span class="lc-label">ยอดขั้นต่ำ (บาท)</span><input class="lc-input" type="number" name="MinSpend" min="0" step="1" value="0" /></label>
+                <label class="lc-field"><span class="lc-label">ลดสูงสุด (บาท, เว้นว่างได้)</span><input class="lc-input" type="number" name="MaxDiscount" min="0" step="1" /></label>
+                <label class="lc-field"><span class="lc-label">หมดอายุ (เว้นว่าง = ไม่หมด)</span><input class="lc-input" type="datetime-local" name="ExpiresAt" /></label>
+                <label class="lc-field lc-check"><input type="checkbox" name="IsActive" value="true" checked /><input type="hidden" name="IsActive" value="false" /> เปิดใช้ทันที</label>
+                <fieldset class="lc-field lc-field--wide">
+                    <legend class="lc-label">ใช้ได้กับหมวด (ไม่เลือก = ทุกหมวด)</legend>
+                    <div class="lc-cat-picks">
+                        @foreach (var category in Model.Categories)
+                        {
+                            <label class="lc-cat-pick">
+                                <input type="checkbox" name="Categories" value="@category.Name" />
+                                <i class="bi @(category.Icon) lc-site-icon lc-site-icon--28" aria-hidden="true"></i>
+                                <span>@category.Name</span>
+                            </label>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="lc-btn lc-btn--ghost" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="submit" class="lc-btn lc-btn--primary">บันทึกโค้ด</button>
+            </div>
+        </form>
+    </div>
+</div>

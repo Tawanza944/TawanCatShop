@@ -1,0 +1,15 @@
+@using WebApplication1.ViewComponents
+@* Sign-in pages: the main layout in its compact form (no shop drawers, short footer). *@
+@{
+    Layout = "_Layout";
+    ViewData[LayoutVariantResolver.ViewDataKey] = LayoutVariant.Compact;
+}
+@RenderBody()
+
+@section Styles {
+    @await RenderSectionAsync("Styles", required: false)
+}
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

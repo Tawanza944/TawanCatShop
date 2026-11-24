@@ -1,0 +1,14 @@
+@model WebApplication1.ViewModels.Store.ProductListViewModel
+@{
+    ViewData["Title"] = Model.SelectedCategory?.Label ?? "สินค้าทั้งหมด";
+}
+<div class="lc-container">
+    <header class="lc-page-head">
+        <h1>@ViewData["Title"]</h1>
+        @if (!string.IsNullOrEmpty(Model.Query.Search))
+        {
+            <p>ผลการค้นหา "@Model.Query.Search"</p>
+        }
+    </header>
+    <partial name="_StorefrontCatalog" model="Model" />
+</div>

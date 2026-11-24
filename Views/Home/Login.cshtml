@@ -1,0 +1,42 @@
+@model WebApplication1.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "เข้าสู่ระบบ";
+    Layout = "_BlankLayout";
+}
+
+<div class="lc-container">
+    <div class="lc-auth">
+        <div class="lc-auth__art">
+            <div>
+                <h2>กลับมาแล้วเหรอ</h2>
+                <p>เข้าสู่ระบบเพื่อชำระเงิน ใช้โค้ดส่วนลด และติดตามพัสดุ ของในตะกร้ายังอยู่ครบ</p>
+            </div>
+            <partial name="_CatIllustration" model="new CatIllustration(CatPose.Sitting)" />
+        </div>
+
+        <form class="lc-auth__form" asp-controller="Home" asp-action="Login" method="post">
+            <h1>เข้าสู่ระบบ</h1>
+            <div asp-validation-summary="ModelOnly"></div>
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            <label class="lc-field">
+                <span class="lc-label">อีเมล หรือ ชื่อผู้ใช้</span>
+                <input class="lc-input" asp-for="EmailOrUser" autocomplete="username" autofocus />
+                <span asp-validation-for="EmailOrUser"></span>
+            </label>
+
+            <label class="lc-field">
+                <span class="lc-label" style="display:flex;justify-content:space-between">รหัสผ่าน <a asp-controller="Home" asp-action="ForgotPassword">ลืมรหัสผ่าน?</a></span>
+                <input class="lc-input" asp-for="Password" autocomplete="current-password" />
+                <span asp-validation-for="Password"></span>
+            </label>
+
+            <button type="submit" class="lc-btn lc-btn--primary">เข้าสู่ระบบ</button>
+            <p class="lc-auth__switch">ยังไม่มีบัญชี? <a asp-controller="Home" asp-action="Register">สมัครสมาชิก</a></p>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

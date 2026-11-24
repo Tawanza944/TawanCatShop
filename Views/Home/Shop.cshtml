@@ -1,0 +1,58 @@
+@model WebApplication1.ViewModels.Store.ProductListViewModel
+@{
+    var shop = Model.Shop!;
+    var query = Model.Query;
+    ViewData["Title"] = shop.Name;
+}
+<div class="lc-container">
+    <header class="lc-shop-profile">
+        <div class="lc-shop-profile__icon">
+            @if (shop.ImageUrl is { } imageUrl)
+            {
+                <img src="@imageUrl" alt="" />
+            }
+            else
+            {
+                <i class="bi bi-shop" aria-hidden="true"></i>
+            }
+        </div>
+        <div class="lc-shop-profile__info">
+            <h1>@shop.Name</h1>
+            <ul class="lc-shop-profile__stats">
+                <li><i class="bi bi-box-seam" aria-hidden="true"></i> สินค้า <b>@Model.TotalProducts</b> รายการ</li>
+                <li><i class="bi bi-people" aria-hidden="true"></i> ผู้ติดตาม <b>@shop.Followers</b> คน</li>
+                <li><i class="bi bi-star-fill" aria-hidden="true"></i> @(shop.Rating is { } rating ? $"คะแนน {rating:0.0} / 5" : "ยังไม่มีรีวิว")</li>
+            </ul>
+        </div>
+        <div class="lc-shop-profile__actions">
+            @if (Model.CanInteractWithShop)
+            {
+                <form asp-controller="ShopContact" asp-action="Follow" method="post">
+                    <input type="hidden" name="id" value="@shop.Id" />
+                    <input type="hidden" name="follow" value="@(Model.IsFollowingShop ? "false" : "true")" />
+                    <button class="lc-btn @(Model.IsFollowingShop ? "lc-btn--on-dark" : "lc-btn--secondary")" type="submit">
+                        <i class="bi @(Model.IsFollowingShop ? "bi-check2" : "bi-plus-lg")" aria-hidden="true"></i> @(Model.IsFollowingShop ? "ติดตามแล้ว" : "ติดตาม")
+                    </button>
+                </form>
+                <a class="lc-btn lc-btn--on-dark" asp-controller="ShopContact" asp-action="Conversation" asp-route-id="@shop.Id">
+                    <i class="bi bi-chat-dots" aria-hidden="true"></i> พูดคุย
+                </a>
+            }
+            else if (!Model.IsSignedIn)
+            {
+                <a class="lc-btn lc-btn--secondary" asp-action="Login" asp-route-returnUrl="@Url.Action("Shop", new { id = shop.Id })">เข้าสู่ระบบเพื่อติดตามหรือพูดคุย</a>
+            }
+        </div>
+    </header>
+    <form asp-action="Shop" method="get" class="lc-catalog__shop-search" role="search">
+        <input type="hidden" name="id" value="@shop.Id" />
+        <input type="hidden" name="category" value="@query.CategoryKey" />
+        <input type="hidden" name="sort" value="@query.Sort" />
+        <input type="hidden" name="minPrice" value="@query.MinPrice" />
+        <input type="hidden" name="maxPrice" value="@query.MaxPrice" />
+        <label for="shop-search" class="lc-label">ค้นหาในร้าน</label>
+        <input id="shop-search" class="lc-input" name="search" value="@query.Search" />
+        <button class="lc-btn lc-btn--secondary lc-btn--sm" type="submit">ค้นหา</button>
+    </form>
+    <partial name="_StorefrontCatalog" model="Model" />
+</div>

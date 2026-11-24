@@ -1,0 +1,19 @@
+@model IReadOnlyList<OrderItem>
+<ul class="lc-items">
+    @foreach (var item in Model)
+    {
+        <li>
+            @if (!string.IsNullOrEmpty(item.ProductImage))
+            {
+                <img src="@item.ProductImage" alt="" loading="lazy" />
+            }
+            else
+            {
+                <span class="lc-items__ph"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+            }
+            <span class="lc-items__name">@item.ProductName</span>
+            <span class="lc-items__qty">× @item.Quantity</span>
+            <span class="lc-items__price">฿@item.TotalPrice.ToString("N0")</span>
+        </li>
+    }
+</ul>

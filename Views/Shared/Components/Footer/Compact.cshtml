@@ -1,0 +1,8 @@
+@model WebApplication1.ViewComponents.FooterViewModel
+
+<footer class="lc-footer lc-footer--compact">
+    <div class="lc-container lc-footer__bottom">
+        <span>@Model.Store.Credit</span>
+        <span><a asp-controller="Home" asp-action="Help">ช่วยเหลือ</a> · @Model.Store.Phone</span>
+    </div>
+</footer>

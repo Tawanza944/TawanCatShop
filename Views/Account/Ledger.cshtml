@@ -1,0 +1,81 @@
+@model DashboardPage
+@{
+    Layout = "_DashboardLayout";
+    var content = (AccountingLedgerModel)Model.Model!;
+}
+@{
+    var report = content.Report;
+    var s = report.Summary;
+}
+<div class="lc-toolbar lc-toolbar--bare">
+    <form class="lc-toolbar__filters" asp-controller="Account" asp-action="Ledger" method="get">
+        <label class="lc-field lc-field--inline"><span class="lc-label">ตั้งแต่</span><input class="lc-input" type="date" name="from" value="@report.From.ToString("yyyy-MM-dd")" /></label>
+        <label class="lc-field lc-field--inline"><span class="lc-label">ถึง</span><input class="lc-input" type="date" name="to" value="@report.To.ToString("yyyy-MM-dd")" max="@content.Today.ToString("yyyy-MM-dd")" /></label>
+        <button class="lc-btn lc-btn--outline lc-btn--sm" type="submit">ดูช่วงนี้</button>
+    </form>
+    <div class="lc-row-actions">
+        <a class="lc-btn lc-btn--outline" asp-controller="Accounting" asp-action="ExportLedger"
+           asp-route-from='@report.From.ToString("yyyy-MM-dd")' asp-route-to='@report.To.ToString("yyyy-MM-dd")'>
+            <i class="bi bi-filetype-csv" aria-hidden="true"></i> ส่งออก CSV
+        </a>
+        <button type="button" class="lc-btn lc-btn--primary" data-bs-toggle="modal" data-bs-target="#entryModal">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> บันทึกรายการ
+        </button>
+    </div>
+</div>
+
+<div class="lc-ledger-sum">
+    <div><span>รายได้ค่าคอม</span><strong class="lc-in">฿@s.CommissionEarned.ToString("N2")</strong></div>
+    <div><span>ค่าใช้จ่ายของเว็บ</span><strong class="lc-out">฿@s.PlatformExpenses.ToString("N2")</strong></div>
+    <div class="is-highlight"><span>รายได้สุทธิของ LoveCat</span><strong class="@(s.PlatformNet < 0 ? "lc-out" : null)">฿@s.PlatformNet.ToString("N2")</strong><small>ค่าคอม − ค่าใช้จ่ายเว็บ</small></div>
+    <div><span>ยอดค้างโอนร้านค้า ณ วันสิ้นช่วง</span><strong>฿@s.OutstandingPayout.ToString("N2")</strong></div>
+</div>
+<p class="lc-note">ค่าใช้จ่ายเว็บ · Flash Sale ฿@s.FlashSaleCost.ToString("N2") · คูปอง ฿@s.CouponCost.ToString("N2") · เงินสะสม ฿@s.RewardsCost.ToString("N2") · ค่าส่งที่เว็บรับภาระ ฿@s.NetShippingCost.ToString("N2") · รายจ่ายอื่น ฿@s.ManualExpenses.ToString("N2")</p>
+
+@if (s.AwaitingCommission > 0)
+{
+    <p class="lc-note">
+        <i class="bi bi-exclamation-triangle lc-site-icon lc-site-icon--28" aria-hidden="true"></i>
+        มี @s.AwaitingCommission ออเดอร์ที่ยังไม่ได้หักคอม
+        <a class="lc-link" asp-controller="Account" asp-action="OrderStatus" asp-route-filter="delivered">ดูออเดอร์ที่ส่งถึงแล้ว</a>
+    </p>
+}
+
+<article class="lc-panel">
+    @if (report.Lines.Count == 0)
+    {
+        <partial name="Sections/_Empty" model="@("ช่วงนี้ยังไม่มีรายการ")" />
+    }
+    else
+    {
+        <partial name="Sections/_LedgerLines" model="(report.Lines, true)" />
+    }
+</article>
+
+<div class="modal fade" id="entryModal" tabindex="-1" aria-labelledby="entryModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" asp-controller="Accounting" asp-action="AddEntry" method="post">
+            <div class="modal-header">
+                <h2 class="modal-title" id="entryModalTitle">บันทึกรายรับ / รายจ่าย</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body lc-form-grid">
+                <fieldset class="lc-field lc-field--wide">
+                    <legend class="lc-label">ประเภท</legend>
+                    <div class="lc-segmented">
+                        <label><input type="radio" name="entryType" value="@LedgerEntry.Expense" checked /> <span>รายจ่าย</span></label>
+                        <label><input type="radio" name="entryType" value="@LedgerEntry.Income" /> <span>รายรับ</span></label>
+                    </div>
+                </fieldset>
+                <label class="lc-field"><span class="lc-label">วันที่</span><input class="lc-input" type="date" name="entryDate" value="@content.Today.ToString("yyyy-MM-dd")" max="@content.Today.ToString("yyyy-MM-dd")" required /></label>
+                <label class="lc-field"><span class="lc-label">จำนวนเงิน (บาท)</span><input class="lc-input" type="number" name="amount" min="0.01" step="0.01" required /></label>
+                <label class="lc-field lc-field--wide"><span class="lc-label">รายการ</span><input class="lc-input" name="title" required maxlength="200" placeholder="เช่น ค่ากล่องพัสดุ, ค่าเช่าโกดัง" /></label>
+                <label class="lc-field lc-field--wide"><span class="lc-label">หมายเหตุ</span><input class="lc-input" name="note" maxlength="255" /></label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="lc-btn lc-btn--ghost" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="submit" class="lc-btn lc-btn--primary">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>
