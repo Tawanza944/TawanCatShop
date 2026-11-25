@@ -2,7 +2,7 @@ import { cart } from './cart.js';
 import { wishlist } from './wishlist.js';
 import { config } from './config.js';
 import { bindDrawers, renderCart, renderWishlist } from './drawers.js';
-import { bindCheckout, startCheckout } from './checkout.js?v=2';
+import { bindCheckout, startCheckout } from './checkout.js?v=3';
 import { bindMascot } from './mascot.js';
 import { askToSignIn, drawer, productFrom, toast } from './ui.js';
 
